@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import random
-url = 'https://raw.githubusercontent.com/Krishpkreame/MagsHealthApp/main/quotes.txt?token=GHSAT0AAAAAABRY7LZEQTDSJ7BXPYILVQH2YQX6ROA'
+url = "https://raw.githubusercontent.com/Krishpkreame/MagsHealthApp/main/quotes.txt?token=GHSAT0AAAAAABRY7LZEQTDSJ7BXPYILVQH2YQX6ROA"
 res = requests.get(url)
 html_page = res.content
 soup = BeautifulSoup(html_page, 'html.parser')
