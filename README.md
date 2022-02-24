@@ -1,2 +1,5 @@
 # MagsHealthApp
- 13 Digital Technology
+
+13 Digital Technology
+
+- Krish Patel 13GRG MAGS
