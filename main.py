@@ -22,7 +22,7 @@ class App(ttk.Frame):
         self.button = ttk.Button(
             self,
             text="To page 2",
-            command=lambda: self.changePage(1),
+            command=lambda: self.changePage(1)
         ).grid(row=2)
 
     def page2(self):
