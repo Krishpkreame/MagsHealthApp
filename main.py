@@ -19,6 +19,7 @@ class App(ttk.Frame):
 
     def page1(self):
         self.photo = tk.PhotoImage(file='./img/logo.png')
+        self.image_label = ttk.Label(
             self,
             image=self.photo,
             padding=5
