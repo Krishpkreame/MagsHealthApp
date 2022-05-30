@@ -6,6 +6,9 @@ class App(ttk.Frame):
     def __init__(self, parent):
         ttk.Frame.__init__(self)
         self.availablePages = [self.page1, self.page2]
+        self.columnconfigure(index=0, weight=1)
+        self.columnconfigure(index=1, weight=1)
+        self.columnconfigure(index=2, weight=1)
         self.page1()
 
     def changePage(self, nmbr):
@@ -15,26 +18,27 @@ class App(ttk.Frame):
         self.availablePages[nmbr]()
 
     def page1(self):
-        self.label = ttk.Label(
+        self.photo = tk.PhotoImage(file='./img/logo.png')
             self,
-            text="This is page 1",
-        ).grid(row=1)
+            image=self.photo,
+            padding=5
+        )
+        self.image_label.grid(row=1, column=1, padx=15, pady=10)
+
         self.button = ttk.Button(
-            self,
-            text="To page 2",
-            command=lambda: self.changePage(1)
-        ).grid(row=2)
+            self, text="Next Page", command=lambda: self.changePage(1))
+        self.button.grid(row=2, column=1, padx=15, pady=10)
 
     def page2(self):
         self.label = ttk.Label(
             self,
-            text="This is page 2 -------------",
-        ).grid(row=0)
+            text="Logo",
+            font=("-size", 15, "-weight", "bold"),
+        )
+        self.label.grid(row=1, column=1, pady=10)
         self.button = ttk.Button(
-            self, text="To page 1", command=lambda: self.changePage(0)).grid(row=1)
-        self.entry = ttk.Entry(self)
-        self.entry.insert(0, "Entry")
-        self.entry.grid(row=2, column=0, padx=15, pady=(0, 10), sticky="ew")
+            self, text="Last Page", command=lambda: self.changePage(0))
+        self.button.grid(row=2, column=1, pady=10)
 
 
 if __name__ == "__main__":
@@ -43,8 +47,9 @@ if __name__ == "__main__":
 
     # Simply set the theme
     root.tk.call("source", "azure.tcl")
-    root.tk.call("set_theme", "light")
+    root.tk.call("set_theme", "dark")
 
     app = App(root)
-    app.grid()
+    app.pack(fill="both", expand=True)
+
     root.mainloop()
