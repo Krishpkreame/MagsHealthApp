@@ -2,6 +2,10 @@
 import tkinter as tk
 from tkinter import ttk
 
+# Temp libs
+import random
+
+
 """
 Make a class for every new page you want to create, this is to better organize your TK pages.
 In the class make a function called create which contains widgets(Labels, Images, TextFeilds)
@@ -41,9 +45,12 @@ class homepage():  # Home page class
 # no comments u get the idea
 class testpage():
     def create(self):
+        lines = open('quotes.txt').read().splitlines()
+        self.randQuote = random.choice(lines)
         self.label = ttk.Label(
             self,
-            text="Testing",
+            text=self.randQuote,
+            font=("Arial", 25)
         )
         self.label.grid(
             row=1,
@@ -57,12 +64,3 @@ class testpage():
             row=2,
             column=1,
             pady=10)
-
-
-class workoffthis():
-    def create(self):
-        self.label = ttk.Label(text="Krish Patel")
-        self.label.grid(row=1, column=1)
-        #
-        # CODE HERE
-        #

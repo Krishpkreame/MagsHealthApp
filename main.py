@@ -13,8 +13,7 @@ class App(ttk.Frame):
         # ADD NEW CLASSES YOU MAKE TO LIST!  (pages will be indexed chronologically)
         self.availablePages = [
             tkPages.homepage,
-            tkPages.testpage,
-            tkPages.workoffthis]
+            tkPages.testpage]
         #
         #
         # Split into 3 colums
