@@ -34,11 +34,11 @@ class App(ttk.Frame):
         self.availablePages[nmbr].create(self)
 
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.title("Khap")
-    root.tk.call("source", "azure.tcl")
-    root.tk.call("set_theme", "dark")
-    app = App(root)
-    app.pack(fill="both", expand=True)
-    root.mainloop()
+if __name__ == "__main__":  # If this file is run directly, run the following code
+    root = tk.Tk()  # Create a window
+    root.title("Khap")  # Add title
+    root.tk.call("source", "azure.tcl")  # Add the azure theme
+    root.tk.call("set_theme", "dark")  # make it dark mode - morbin time
+    app = App(root)  # Link the App and window we made
+    app.pack(fill="both", expand=True)  # Allow resizing
+    root.mainloop()  # Run the app
