@@ -12,7 +12,7 @@ class App(ttk.Frame):
         # Page list
         # ADD NEW CLASSES YOU MAKE TO LIST!  (pages will be indexed chronologically)
         self.availablePages = [
-            tkPages.homepage,
+            tkPages.loginpage,
             tkPages.testpage]
         #
         #
@@ -31,6 +31,13 @@ class App(ttk.Frame):
         #
         # Run the create function on the desired page
         self.availablePages[nmbr].create(self)
+    #
+    #
+    #
+    # Login func to login and move to next screen
+
+    def login(self, username, password):
+        print(username, password)
 
 
 if __name__ == "__main__":  # If this file is run directly, run the following code
