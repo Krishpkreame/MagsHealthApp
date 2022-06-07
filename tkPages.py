@@ -38,7 +38,6 @@ class loginpage():  # Home page class
         self.usericon = ttk.Label(self.loginentrys, image=self.userimg)
         self.usericon.grid(row=0, column=0, sticky="ne", pady=10)
         self.usrnme = ttk.Entry(self.loginentrys)
-        self.usrnme.insert(0, "Username :")
         self.usrnme.grid(row=0, column=1, pady=10)
 
         # Password Entry ---
@@ -47,7 +46,6 @@ class loginpage():  # Home page class
         self.pswdicon = ttk.Label(self.loginentrys, image=self.pswdimg)
         self.pswdicon.grid(row=1, column=0, sticky="ne", pady=10)
         self.pswd = ttk.Entry(self.loginentrys)
-        self.pswd.insert(0, "Password :")
         self.pswd.grid(row=1, column=1, pady=10)
 
         # Create a button that will call the changePage call (in the main file)

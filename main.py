@@ -31,11 +31,8 @@ class App(ttk.Frame):
         #
         # Run the create function on the desired page
         self.availablePages[nmbr].create(self)
-    #
-    #
-    #
-    # Login func to login and move to next screen
 
+    # Login func to login and move to next screen
     def login(self, username, password):
         print(username, password)
 
