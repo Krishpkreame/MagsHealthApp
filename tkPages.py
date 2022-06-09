@@ -37,8 +37,8 @@ class loginpage():  # Home page class
         # Create icon in nested 1st column and username entry in 2nd
         self.usericon = ttk.Label(self.loginentrys, image=self.userimg)
         self.usericon.grid(row=0, column=0, sticky="ne", pady=10)
-        self.usrnme = ttk.Entry(self.loginentrys)
-        self.usrnme.grid(row=0, column=1, pady=10)
+        self.email = ttk.Entry(self.loginentrys)
+        self.email.grid(row=0, column=1, pady=10)
 
         # Password Entry ---
         self.pswdimg = tk.PhotoImage(file='./img/pswd.png')  # Get pswd icon
@@ -52,7 +52,7 @@ class loginpage():  # Home page class
         self.button = ttk.Button(
             self,
             text="Login",
-            command=lambda: self.login(self.usrnme.get(), self.pswd.get()))  # ChangePage 1, meaning it will open index 1 of pages list
+            command=lambda: self.login(self.email.get(), self.pswd.get()))  # ChangePage 1, meaning it will open index 1 of pages list
         self.button.grid(row=4, column=1, pady=10)  # Place 4th row
 
 

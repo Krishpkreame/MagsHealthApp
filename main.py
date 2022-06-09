@@ -1,6 +1,8 @@
 # Base libaries
 import tkinter as tk
 from tkinter import ttk
+import pymysql
+import bcrypt
 # Import pages
 import tkPages
 
@@ -33,8 +35,18 @@ class App(ttk.Frame):
         self.availablePages[nmbr].create(self)
 
     # Login func to login and move to next screen
-    def login(self, username, password):
-        print(username, password)
+    def login(self, email, password):  # ! Add comments
+        conn = pymysql.connect(host='sql6.freemysqlhosting.net', port=3306,
+                               user='sql6498570', passwd='AJ6NHabilg', db='sql6498570')
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT `pswdHash` FROM MagsHealthApp WHERE `email`=%s", (email))
+        result = cur.fetchone()
+        if bcrypt.checkpw(bytes(password, 'utf-8'), bytes(result[0], 'utf-8')):
+            print("Correct password")
+            self.changePage(1)
+        else:
+            print("Incorrect password")
 
 
 if __name__ == "__main__":  # If this file is run directly, run the following code
