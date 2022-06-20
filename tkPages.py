@@ -113,30 +113,43 @@ class signpage():  # signup page page class
         self.conPswd.grid(row=3, column=1, pady=10)
 
         # Create a button that will call the changePage call (in the main file)
-        self.button = ttk.Button(
+        self.signupBtn = ttk.Button(
             self,
             text="Signup",
             command=lambda: self.signup(self.name.get(), self.email.get(), self.pswd.get(), self.conPswd.get()))  # ChangePage 1, meaning it will open index 1 of pages list
-        self.button.grid(row=4, column=1, pady=10)  # Place 4th row
+        self.signupBtn.grid(row=4, column=1, pady=10)  # Place 4th row
+        # Signup button
+        self.loginBtn = ttk.Button(
+            self,
+            text="Login",
+            style="small.TButton",
+            command=lambda: self.changePage(0))  # ChangePage 1, meaning it will open index 1 of pages list
+        self.loginBtn.grid(row=5, column=1, pady=10)  # Place 4th row
 
 
-# no comments u get the idea
 class mainpage():
     def create(self):
+        # Get the photo from computer
+        self.photo = tk.PhotoImage(file='./img/graph.png')
+
+        # Make a label using the image we got
+        self.image_label = ttk.Label(self, image=self.photo,)
+        self.image_label.grid(row=1, column=1)  # Place 1st row
+
         self.label = ttk.Label(
             self,
             text="Login successful!\nWelcome to the main page!",
             font=("Arial", 25)
         )
         self.label.grid(
-            row=1,
+            row=2,
             column=1,
             pady=10)
         self.button = ttk.Button(
             self,
             text="Logout",
-            command=lambda: self.changePage(0))  # Note that I used 0 because the homepage is the 0th index in list
+            command=lambda: self.makegraph())  # Note that I used 0 because the homepage is the 0th index in list
         self.button.grid(
-            row=2,
+            row=3,
             column=1,
             pady=10)
