@@ -10,8 +10,8 @@ import tkPages
 class App(ttk.Frame):
     def __init__(self, parent):
         # Setup sql connection
-        self.conn = pymysql.connect(host='sql6.freemysqlhosting.net', port=3306,
-                                    user='sql6500321', passwd='fihcAN1pcZ', db='sql6500321')
+        self.conn = pymysql.connect(host='192.168.86.188', port=3306,
+                                    user='appuser', passwd='o6Rf@K*#5%sLDt', db='MagsHealthApp')
         self.cur = self.conn.cursor()
         # Setup some styling
         s = ttk.Style()
@@ -50,7 +50,7 @@ class App(ttk.Frame):
         self.email = email
         # DB sql cmd
         self.cur.execute(
-            "SELECT `pswdHash` FROM MagsHealthApp WHERE `email`=%s", (email))
+            "SELECT `pswdHash` FROM login WHERE `email`=%s", (email))
         result = self.cur.fetchone()
         #
         # Check if email exists
@@ -74,16 +74,22 @@ class App(ttk.Frame):
                     bytes(password.strip(), 'utf-8'), bcrypt.gensalt())
                 print(self.hashed)
                 # Insert into DB
-                self.sqlcmd = """insert into MagsHealthApp (name, email, pswdHash, weight)
-                        values (%s, %s, %s, %s)
+                self.sqlcmd = """insert into login (name, email, pswdHash)
+                        values (%s, %s, %s)
                 """
-                self.cur.execute(self.sqlcmd, (name, email, self.hashed, 0))
+                self.cur.execute(self.sqlcmd, (name, email, self.hashed))
                 self.conn.commit()
 
     def makegraph(self):
-        # DB sql cmd
+        # Sql cmd to get recent data values from the current user
         self.cur.execute(
-            "SELECT * FROM dataTable WHERE `email`=%s", (self.email))
+            """
+            select time,weight
+            from dataTable
+            where `email`=%s
+            order by id desc
+            limit 2;""",
+            (self.email))
         result = self.cur.fetchall()
         print(result)
 
