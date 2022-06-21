@@ -2,11 +2,6 @@
 import tkinter as tk
 from tkinter import ttk
 
-# Temp libs
-import random
-from turtle import bgcolor
-
-
 """
 Make a class for every new page you want to create, this is to better organize your TK pages.
 In the class make a function called create which contains widgets(Labels, Images, TextFeilds)
@@ -136,20 +131,53 @@ class mainpage():
         self.image_label = ttk.Label(self, image=self.photo,)
         self.image_label.grid(row=1, column=1)  # Place 1st row
 
-        self.label = ttk.Label(
+        self.welcomelabel = ttk.Label(
             self,
             text="Login successful!\nWelcome to the main page!",
             font=("Arial", 25)
         )
-        self.label.grid(
+        self.welcomelabel.grid(
             row=2,
             column=1,
             pady=10)
-        self.button = ttk.Button(
+        self.formBtn = ttk.Button(
             self,
-            text="Logout",
-            command=lambda: self.makegraph())  # Note that I used 0 because the homepage is the 0th index in list
-        self.button.grid(
+            text="Weight",
+            command=lambda: self.changePage(3))  # Note that I used 0 because the homepage is the 0th index in list
+        self.formBtn.grid(
             row=3,
             column=1,
             pady=10)
+        self.logoutBtn = ttk.Button(
+            self,
+            text="Logout",
+            style="small.TButton",
+            command=lambda: self.makegraph())  # Note that I used 0 because the homepage is the 0th index in list
+        self.logoutBtn.grid(
+            row=4,
+            column=1,
+            pady=10)
+
+
+class inputForm():
+    def create(self):
+        # Create a Frame for login widgets
+        self.entries = ttk.Frame(self)  # Frame
+        self.entries.grid(row=2, column=1, sticky="nsew", rowspan=2)
+        # Setup columns
+        self.entries.columnconfigure(index=0, weight=1)
+        self.entries.columnconfigure(index=1, weight=1)
+
+        # Weight Entry ---
+        self.weightimg = tk.PhotoImage(file='./img/weight.png')  # pswd icon
+        self.weighticon = ttk.Label(self.entries, image=self.weightimg)
+        self.weighticon.grid(row=3, column=0, sticky="ne", pady=10)
+        self.weight = ttk.Entry(self.entries)
+        self.weight.grid(row=3, column=1, pady=10)
+
+        # Create a button that will call the changePage call (in the main file)
+        self.sumbitBtn = ttk.Button(
+            self,
+            text="Enter",
+            command=lambda: self.inputForm(self.weight.get()))
+        self.sumbitBtn.grid(row=4, column=1, pady=10)  # Place 4th row

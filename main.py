@@ -1,13 +1,18 @@
 # Base libaries
+import datetime
 import tkinter as tk
 from tkinter import ttk
 import pymysql
 import bcrypt
+import time
+import matplotlib.pyplot as plt
+
 # Import pages
 import tkPages
 
 
 class App(ttk.Frame):
+    # Initizlize function
     def __init__(self, parent):
         # Setup sql connection
         self.conn = pymysql.connect(
@@ -26,7 +31,8 @@ class App(ttk.Frame):
         self.availablePages = [
             tkPages.loginpage,
             tkPages.signpage,
-            tkPages.mainpage]
+            tkPages.mainpage,
+            tkPages.inputForm]
         # Split into 3 colums
         for i in range(3):
             self.columnconfigure(index=i, weight=1)
@@ -74,6 +80,7 @@ class App(ttk.Frame):
                 self.cur.execute(self.sqlcmd, (name, email, self.hashed))
                 self.conn.commit()
 
+    #! Temp meathod
     def makegraph(self):
         # Sql cmd to get recent data values from the current user
         self.cur.execute(
@@ -82,10 +89,38 @@ class App(ttk.Frame):
             from dataTable
             where `email`=%s
             order by id desc
-            limit 2;""",
+            limit 3;""",
             (self.email))
         result = self.cur.fetchall()
-        print(result)
+        self.times = []
+        self.values = []
+
+        for i in result:
+            self.times.append(i[0])
+            self.values.append(i[1])
+
+        print(self.times)
+        print(self.values)
+        plt.bar(self.times, self.values)
+        plt.ylim(0, 100)
+        plt.xlabel("Name of Students")
+        plt.ylabel("Marks of Students")
+        plt.title("Student's Information")
+        plt.show()
+
+    def inputForm(self, weight):
+        # Sql cmd to insert new data into the db
+        try:
+            weight = float(weight.strip())
+            self.sqlcmd = """
+                insert into dataTable (time, weight, email) values (%s, %s, %s)"""
+            self.cur.execute(
+                self.sqlcmd, (datetime.date.today(), weight, self.email))
+            self.conn.commit()
+            time.sleep(1)
+            self.changePage(2)
+        except ValueError:
+            print("Invalid weight")
 
 
 if __name__ == "__main__":  # If this file is run directly, run the following code
