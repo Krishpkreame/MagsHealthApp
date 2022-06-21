@@ -10,28 +10,26 @@ import tkPages
 class App(ttk.Frame):
     def __init__(self, parent):
         # Setup sql connection
-        self.conn = pymysql.connect(host='192.168.86.188', port=3306,
-                                    user='appuser', passwd='o6Rf@K*#5%sLDt', db='MagsHealthApp')
+        self.conn = pymysql.connect(
+            host='192.168.86.188',
+            port=3306,
+            user='appuser',
+            passwd='o6Rf@K*#5%sLDt',
+            db='MagsHealthApp')
         self.cur = self.conn.cursor()
         # Setup some styling
-        s = ttk.Style()
-        s.configure('small.TButton', font=(None, 7))
-        s.configure('big.TButton', font=(None, 18))
-
+        styl = ttk.Style()
+        styl.configure('small.TButton', font=(None, 7))
+        styl.configure('big.TButton', font=(None, 18))
         ttk.Frame.__init__(self)  # initialize the superclass (frame)
-        #
-        # Page list
-        # ADD NEW CLASSES YOU MAKE TO LIST!  (pages will be indexed chronologically)
+        # Page list - ADD NEW CLASSES YOU MAKE TO LIST!  (pages will be indexed chronologically)
         self.availablePages = [
             tkPages.loginpage,
             tkPages.signpage,
             tkPages.mainpage]
-        #
-        #
         # Split into 3 colums
-        self.columnconfigure(index=0, weight=1)
-        self.columnconfigure(index=1, weight=1)
-        self.columnconfigure(index=2, weight=1)
+        for i in range(3):
+            self.columnconfigure(index=i, weight=1)
         # Show first page on list at start up
         self.availablePages[0].create(self)
 
@@ -39,8 +37,6 @@ class App(ttk.Frame):
     def changePage(self, nmbr):
         for widget in self.winfo_children():  # For each widget on scren
             widget.destroy()  # Destory each widget found
-        #
-        #
         # Run the create function on the desired page
         self.availablePages[nmbr].create(self)
 
@@ -52,7 +48,6 @@ class App(ttk.Frame):
         self.cur.execute(
             "SELECT `pswdHash` FROM login WHERE `email`=%s", (email))
         result = self.cur.fetchone()
-        #
         # Check if email exists
         if result is not None:
             # Password checking
@@ -74,9 +69,8 @@ class App(ttk.Frame):
                     bytes(password.strip(), 'utf-8'), bcrypt.gensalt())
                 print(self.hashed)
                 # Insert into DB
-                self.sqlcmd = """insert into login (name, email, pswdHash)
-                        values (%s, %s, %s)
-                """
+                self.sqlcmd = """
+                insert into login (name, email, pswdHash) values (%s, %s, %s)"""
                 self.cur.execute(self.sqlcmd, (name, email, self.hashed))
                 self.conn.commit()
 
