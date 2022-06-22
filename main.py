@@ -16,8 +16,8 @@ class App(ttk.Frame):
     def __init__(self, parent):
         # Setup sql connection
         self.conn = pymysql.connect(
-            host='192.168.86.188',
-            port=3306,
+            host='121.98.68.25',
+            port=1706,
             user='appuser',
             passwd='o6Rf@K*#5%sLDt',
             db='MagsHealthApp')
@@ -48,8 +48,6 @@ class App(ttk.Frame):
 
     # Login func to login and move to next screen
     def login(self, email, password):  # ! Add comments
-        # Save email locally
-        self.email = email
         # DB sql cmd
         self.cur.execute(
             "SELECT `pswdHash` FROM login WHERE `email`=%s", (email))
@@ -59,6 +57,8 @@ class App(ttk.Frame):
             # Password checking
             if bcrypt.checkpw(bytes(password, 'utf-8'), bytes(result[0], 'utf-8')):
                 print("Correct password")
+                # Save email locally
+                self.email = email
                 self.changePage(2)
             else:
                 print("Incorrect password")
@@ -97,25 +97,41 @@ class App(ttk.Frame):
 
         for i in result:
             self.times.append(i[0])
-            self.values.append(i[1])
+            self.values.append(float(i[1]))
 
         print(self.times)
         print(self.values)
-        plt.bar(self.times, self.values)
-        plt.ylim(0, 100)
-        plt.xlabel("Name of Students")
-        plt.ylabel("Marks of Students")
-        plt.title("Student's Information")
-        plt.show()
 
-    def inputForm(self, weight):
+        fig = plt.figure()
+        ax = plt.subplot(111)
+        ax.plot(self.times, self.values, label='$y = numbers')
+        plt.title('Legend inside')
+        ax.legend()
+        # plt.show()
+
+        fig.savefig('./img/graph.png')
+        self.changePage(0)
+
+    def inputForm(self, weight):  # ! Add comments
         # Sql cmd to insert new data into the db
         try:
-            weight = float(weight.strip())
+            self.weighttemp = float(weight.strip())
+            self.todayStrtemp = f"{datetime.datetime.now():%Y-%m-%d}"
             self.sqlcmd = """
-                insert into dataTable (time, weight, email) values (%s, %s, %s)"""
-            self.cur.execute(
-                self.sqlcmd, (datetime.date.today(), weight, self.email))
+                INSERT INTO dataTable (email, weight, time) 
+                SELECT '{0}',{1},'{2}' FROM DUAL 
+                WHERE NOT EXISTS (SELECT * FROM dataTable WHERE email='{0}' and time='{2}');
+            """.format(self.email, str(self.weighttemp), self.todayStrtemp)
+            self.cur.execute(self.sqlcmd)
+            time.sleep(0.05)
+            self.sqlcmd = """
+                UPDATE dataTable 
+                SET
+                    weight = {1}
+                WHERE
+                    email = '{0}' and time = '{2}';
+            """.format(self.email, str(self.weighttemp), self.todayStrtemp)
+            self.cur.execute(self.sqlcmd)
             self.conn.commit()
             time.sleep(1)
             self.changePage(2)
