@@ -1,12 +1,13 @@
 # Base libaries
 import datetime
+from multiprocessing.sharedctypes import Value
 import tkinter as tk
 from tkinter import ttk
 import pymysql
 import bcrypt
 import time
 import matplotlib.pyplot as plt
-
+import matplotlib.dates as mdates
 # Import pages
 import tkPages
 
@@ -14,19 +15,21 @@ import tkPages
 class App(ttk.Frame):
     # Initizlize function
     def __init__(self, parent):
+        ttk.Frame.__init__(self)  # initialize the superclass (frame)
+        # Class variables
+        self.name = "Placeholder"
         # Setup sql connection
-        self.conn = pymysql.connect(
+        self.DBconn = pymysql.connect(
             host='121.98.68.25',
             port=1706,
             user='appuser',
             passwd='o6Rf@K*#5%sLDt',
             db='MagsHealthApp')
-        self.cur = self.conn.cursor()
+        self.sqlCur = self.DBconn.cursor()
         # Setup some styling
         styl = ttk.Style()
         styl.configure('small.TButton', font=(None, 7))
         styl.configure('big.TButton', font=(None, 18))
-        ttk.Frame.__init__(self)  # initialize the superclass (frame)
         # Page list - ADD NEW CLASSES YOU MAKE TO LIST!  (pages will be indexed chronologically)
         self.availablePages = [
             tkPages.loginpage,
@@ -47,103 +50,126 @@ class App(ttk.Frame):
         self.availablePages[nmbr].create(self)
 
     # Login func to login and move to next screen
-    def login(self, email, password):  # ! Add comments
-        # DB sql cmd
-        self.cur.execute(
-            "SELECT `pswdHash` FROM login WHERE `email`=%s", (email))
-        result = self.cur.fetchone()
+    def login(self, email, password):
+        # SQL - get hashed password for email from DB
+        self.sqlCur.execute(
+            "SELECT `pswdHash`,name FROM login WHERE `email`=%s", (email))
+        self.sqlpswdresult = self.sqlCur.fetchone()
         # Check if email exists
-        if result is not None:
-            # Password checking
-            if bcrypt.checkpw(bytes(password, 'utf-8'), bytes(result[0], 'utf-8')):
-                print("Correct password")
-                # Save email locally
+        if self.sqlpswdresult is not None:
+            # Password checking --- convert hashed DB pswd and user input pswd to bytes
+            if bcrypt.checkpw(bytes(password, 'utf-8'), bytes(self.sqlpswdresult[0], 'utf-8')):
+                # Save name and email locally as class variables
                 self.email = email
+                self.name = self.sqlpswdresult[1]
+                print("Correct password\nLogined as", self.name, self.email)
+                # Move to homepage
                 self.changePage(2)
-            else:
-                print("Incorrect password")
+            else:  # If hashed password dont match
+                print("Error: Incorrect password")
+        else:  # If sql email lookup returns nothing
+            print("Error: User does not exist (Wrong email)")
 
     # Signup func to create new user in db
     def signup(self, name, email, password, confirmPassword):  # ! Add comments
         # Check if any inputs empty
         if name != '' and email != '' and password != '' and confirmPassword != '':
-            # Check if values are valid
+            # Check if password and confirm password match
             if password == confirmPassword:
-                print("Password matches")
-                # Hash password
-                self.hashed = bcrypt.hashpw(
+                print("Passwords matches")
+                # Hash the password
+                self.pswdHashed = bcrypt.hashpw(
                     bytes(password.strip(), 'utf-8'), bcrypt.gensalt())
-                print(self.hashed)
-                # Insert into DB
-                self.sqlcmd = """
-                insert into login (name, email, pswdHash) values (%s, %s, %s)"""
-                self.cur.execute(self.sqlcmd, (name, email, self.hashed))
-                self.conn.commit()
+                # Insert name, email, hashed password into DB as new user
+                self.sqlCur.execute("""
+                insert into login (name, email, pswdHash) values (%s, %s, %s)""",
+                                    (name, email, self.pswdHashed))
+                # Due to sql being a insert command commit is needed
+                self.DBconn.commit()
+        else:  # If any inputs are empty
+            print("Error: No fields can be left blank")
 
-    #! Temp meathod
-    def makegraph(self):
-        # Sql cmd to get recent data values from the current user
-        self.cur.execute(
-            """
+    def graphInit(self):
+        # Sql cmd to get 15 most recent data values for the current user from DB
+        self.sqlCur.execute("""
             select time,weight
             from dataTable
             where `email`=%s
             order by id desc
-            limit 3;""",
-            (self.email))
-        result = self.cur.fetchall()
+            limit 15;""",
+                            (self.email))
+        result = self.sqlCur.fetchall()
+        # Empty lists for graphs
         self.times = []
         self.values = []
-
+        # Go through the data from DB and populate class var lists to them.
         for i in result:
             self.times.append(i[0])
             self.values.append(float(i[1]))
-
-        print(self.times)
-        print(self.values)
-
-        fig = plt.figure()
-        ax = plt.subplot(111)
-        ax.plot(self.times, self.values, label='$y = numbers')
-        plt.title('Legend inside')
-        ax.legend()
-        # plt.show()
-
+        # Init values for dymanic graph
+        self.lowestWeight = 999999
+        self.highestWeight = 0
+        for x in self.values:  # Go through the weight values
+            # If x value lower than the lowest found so far, update new lowest value
+            if x <= self.lowestWeight:
+                self.lowestWeight = x
+            # If x value higher than the highest found so far, update new highest value
+            if x >= self.highestWeight:
+                self.highestWeight = x
+        fig = plt.figure()  # Change plot into figure object
+        # Adjust the graph y limits so that minimal blank shape
+        plt.ylim(self.lowestWeight-10, self.highestWeight+10)
+        ax = plt.subplot(111)  # Line graph
+        ax.plot(self.times, self.values)  # plot the values
+        # Only use day on x axis (not year or month)
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%d'))
+        # Save the image file
         fig.savefig('./img/graph.png')
-        self.changePage(0)
 
-    def inputForm(self, weight):  # ! Add comments
+    def inputForm(self, weight):
         # Sql cmd to insert new data into the db
         try:
-            self.weighttemp = float(weight.strip())
+            # Convert texted string to float
+            self.weightTemp = float(weight.strip())
+            if self.weightTemp <= 0:  # If weight is negative or zero
+                raise ValueError  # Raise value error
+            # Get current date in format Year month date
             self.todayStrtemp = f"{datetime.datetime.now():%Y-%m-%d}"
+            # Input correct values into the sql cmd
+            # Sql cmd will insert new data values for current date if it doesnt exist
             self.sqlcmd = """
                 INSERT INTO dataTable (email, weight, time) 
                 SELECT '{0}',{1},'{2}' FROM DUAL 
                 WHERE NOT EXISTS (SELECT * FROM dataTable WHERE email='{0}' and time='{2}');
-            """.format(self.email, str(self.weighttemp), self.todayStrtemp)
-            self.cur.execute(self.sqlcmd)
+            """.format(self.email, str(self.weightTemp), self.todayStrtemp)
+            # Perform insert sql cmd
+            self.sqlCur.execute(self.sqlcmd)
             time.sleep(0.05)
+            # Input correct values into the sql cmd
+            # After the first insert sql cmd is skiped/executed an update cmd will run
+            # This is to update the value of that day if after the first insert is skipped
             self.sqlcmd = """
-                UPDATE dataTable 
-                SET
-                    weight = {1}
-                WHERE
-                    email = '{0}' and time = '{2}';
-            """.format(self.email, str(self.weighttemp), self.todayStrtemp)
-            self.cur.execute(self.sqlcmd)
-            self.conn.commit()
-            time.sleep(1)
+                UPDATE dataTable SET weight = {1} WHERE email = '{0}' and time = '{2}';
+            """.format(self.email, str(self.weightTemp), self.todayStrtemp)
+            # Perform update sql cmd
+            self.sqlCur.execute(self.sqlcmd)
+            # Due to update and insert being used commit is needed
+            self.DBconn.commit()
+            time.sleep(0.05)
+            # After the entry is in the DB go back to homepage
             self.changePage(2)
-        except ValueError:
-            print("Invalid weight")
+        except ValueError:  # Catch error if float conversion is not possible
+            print("Error: Invalid weight (whole positive value or decimal only)")
 
 
 if __name__ == "__main__":  # If this file is run directly, run the following code
-    root = tk.Tk()  # Create a window
-    root.title("Khap")  # Add title
-    root.tk.call("source", "azure.tcl")  # Add the azure theme
-    root.tk.call("set_theme", "dark")  # make it dark mode - morbin time
-    app = App(root)  # Link the App and window we made
-    app.pack(fill="both", expand=True)  # Allow resizing
-    root.mainloop()  # Run the app
+    try:  # Run the following code
+        root = tk.Tk()  # Create a window
+        root.title("Khap")  # Add title
+        root.tk.call("source", "azure.tcl")  # Add the azure theme
+        root.tk.call("set_theme", "dark")  # make it dark mode - morbin time
+        app = App(root)  # Link the App and window we made
+        app.pack(fill="both", expand=True)  # Fill window
+        root.mainloop()  # Run the app
+    except Exception as e:  # Catch any other errors
+        input(e)  # Stop program and print error message

@@ -122,8 +122,10 @@ class signpage():  # signup page page class
         self.loginBtn.grid(row=5, column=1, pady=10)  # Place 4th row
 
 
-class mainpage():
+class mainpage():  # ! Add comments
     def create(self):
+        # Create graph before creating other widgets
+        self.graphInit()
         # Get the photo from computer
         self.photo = tk.PhotoImage(file='./img/graph.png')
 
@@ -143,7 +145,7 @@ class mainpage():
         self.formBtn = ttk.Button(
             self,
             text="Weight",
-            command=lambda: self.changePage(3))  # Note that I used 0 because the homepage is the 0th index in list
+            command=lambda: self.changePage(3))
         self.formBtn.grid(
             row=3,
             column=1,
@@ -152,7 +154,7 @@ class mainpage():
             self,
             text="Logout",
             style="small.TButton",
-            command=lambda: self.makegraph())  # Note that I used 0 because the homepage is the 0th index in list
+            command=lambda: self.changePage(0))
         self.logoutBtn.grid(
             row=4,
             column=1,
