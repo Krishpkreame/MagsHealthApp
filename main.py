@@ -122,7 +122,8 @@ class App(ttk.Frame):
         ax = plt.subplot(111)  # Line graph
         ax.plot(self.times, self.values)  # plot the values
         # Only use day on x axis (not year or month)
-        ax.xaxis.set_major_formatter(mdates.DateFormatter('%d'))
+        ax.xaxis.set_major_formatter(
+            mdates.DateFormatter('%b-%d'))
         # Save the image file
         fig.savefig('./img/graph.png')
 
@@ -138,8 +139,8 @@ class App(ttk.Frame):
             # Input correct values into the sql cmd
             # Sql cmd will insert new data values for current date if it doesnt exist
             self.sqlcmd = """
-                INSERT INTO dataTable (email, weight, time) 
-                SELECT '{0}',{1},'{2}' FROM DUAL 
+                INSERT INTO dataTable (email, weight, time)
+                SELECT '{0}',{1},'{2}' FROM DUAL
                 WHERE NOT EXISTS (SELECT * FROM dataTable WHERE email='{0}' and time='{2}');
             """.format(self.email, str(self.weightTemp), self.todayStrtemp)
             # Perform insert sql cmd
