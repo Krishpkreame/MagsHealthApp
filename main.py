@@ -1,13 +1,14 @@
 # Base libaries
 import datetime
-from multiprocessing.sharedctypes import Value
+import time
 import tkinter as tk
 from tkinter import ttk
 import pymysql
 import bcrypt
-import time
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+# Food API
+from PYfoodapi import *
 # Import pages
 import tkPages
 
@@ -15,9 +16,7 @@ import tkPages
 class App(ttk.Frame):
     # Initizlize function
     def __init__(self, parent):
-        ttk.Frame.__init__(self)  # initialize the superclass (frame)
-        # Class variables
-        self.name = "Placeholder"
+        # SQL DATABASE ----------------------------------
         # Setup sql connection
         self.DBconn = pymysql.connect(
             host='121.98.68.25',
@@ -26,11 +25,15 @@ class App(ttk.Frame):
             passwd='o6Rf@K*#5%sLDt',
             db='MagsHealthApp')
         self.sqlCur = self.DBconn.cursor()
+        # Tkinter setup --------------------------------
+        ttk.Frame.__init__(self)  # initialize the superclass (frame)
+        self.name = "Placeholder"  # Class variables
         # Setup some styling
         styl = ttk.Style()
         styl.configure('small.TButton', font=(None, 7))
         styl.configure('big.TButton', font=(None, 18))
-        # Page list - ADD NEW CLASSES YOU MAKE TO LIST!  (pages will be indexed chronologically)
+        # Page list - ADD NEW CLASSES YOU MAKE TO LIST!
+        # (pages will be indexed chronologically)
         self.availablePages = [
             tkPages.loginpage,
             tkPages.signpage,
@@ -71,7 +74,7 @@ class App(ttk.Frame):
             print("Error: User does not exist (Wrong email)")
 
     # Signup func to create new user in db
-    def signup(self, name, email, password, confirmPassword):  # ! Add comments
+    def signup(self, name, email, password, confirmPassword):
         # Check if any inputs empty
         if name != '' and email != '' and password != '' and confirmPassword != '':
             # Check if password and confirm password match
