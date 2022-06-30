@@ -2,7 +2,7 @@ import requests
 import json
 
 
-class foodapi:
+class nutritionInfo:
     def __init__(self):
         self.__apikey = "C6e95NIQxZze2dwtANO0+A==C8xURwL7essFClbv"
 

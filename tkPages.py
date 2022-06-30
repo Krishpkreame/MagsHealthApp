@@ -158,10 +158,10 @@ class mainpage():  # ! Add comments
         self.logoutBtn.grid(
             row=4,
             column=1,
-            pady=10)
+            pady=1)
 
 
-class inputForm():
+class weightForm():
     def create(self):
         # Create a Frame for login widgets
         self.entries = ttk.Frame(self)  # Frame

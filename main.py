@@ -8,7 +8,7 @@ import bcrypt
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 # Food API
-from PYfoodapi import *
+from PYfoodapi import nutritionInfo
 # Import pages
 import tkPages
 
@@ -16,6 +16,8 @@ import tkPages
 class App(ttk.Frame):
     # Initizlize function
     def __init__(self, parent):
+        # Food API --------------------------------
+        food = nutritionInfo()
         # SQL DATABASE ----------------------------------
         # Setup sql connection
         self.DBconn = pymysql.connect(
@@ -38,7 +40,7 @@ class App(ttk.Frame):
             tkPages.loginpage,
             tkPages.signpage,
             tkPages.mainpage,
-            tkPages.inputForm]
+            tkPages.weightForm]
         # Split into 3 colums
         for i in range(3):
             self.columnconfigure(index=i, weight=1)
@@ -130,7 +132,7 @@ class App(ttk.Frame):
         # Save the image file
         fig.savefig('./img/graph.png')
 
-    def inputForm(self, weight):
+    def weightForm(self, weight):
         # Sql cmd to insert new data into the db
         try:
             # Convert texted string to float
