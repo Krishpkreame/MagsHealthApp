@@ -3,6 +3,7 @@ import datetime
 import time
 import tkinter as tk
 from tkinter import ttk
+from tkinter.messagebox import showerror
 import pymysql
 import bcrypt
 import matplotlib.pyplot as plt
@@ -16,8 +17,6 @@ import tkPages
 class App(ttk.Frame):
     # Initizlize function
     def __init__(self, parent):
-        # Food API --------------------------------
-        food = nutritionInfo()
         # SQL DATABASE ----------------------------------
         # Setup sql connection
         self.DBconn = pymysql.connect(
@@ -40,7 +39,7 @@ class App(ttk.Frame):
             tkPages.loginpage,
             tkPages.signpage,
             tkPages.mainpage,
-            tkPages.weightForm]
+            tkPages.foodForm]
         # Split into 3 colums
         for i in range(3):
             self.columnconfigure(index=i, weight=1)
@@ -71,9 +70,11 @@ class App(ttk.Frame):
                 # Move to homepage
                 self.changePage(2)
             else:  # If hashed password dont match
-                print("Error: Incorrect password")
+                tk.messagebox.showwarning(
+                    title="Error", message="Incorrect password")
         else:  # If sql email lookup returns nothing
-            print("Error: User does not exist (Wrong email)")
+            tk.messagebox.showerror(title="Invalid username",
+                                    message="User does not exist (Wrong email)")
 
     # Signup func to create new user in db
     def signup(self, name, email, password, confirmPassword):
@@ -81,7 +82,6 @@ class App(ttk.Frame):
         if name != '' and email != '' and password != '' and confirmPassword != '':
             # Check if password and confirm password match
             if password == confirmPassword:
-                print("Passwords matches")
                 # Hash the password
                 self.pswdHashed = bcrypt.hashpw(
                     bytes(password.strip(), 'utf-8'), bcrypt.gensalt())
@@ -92,7 +92,8 @@ class App(ttk.Frame):
                 # Due to sql being a insert command commit is needed
                 self.DBconn.commit()
         else:  # If any inputs are empty
-            print("Error: No fields can be left blank")
+            tk.messagebox.showerror(
+                title="Error", message="No fields can be left blank")
 
     def graphInit(self):
         # Sql cmd to get 15 most recent data values for the current user from DB
@@ -165,7 +166,33 @@ class App(ttk.Frame):
             # After the entry is in the DB go back to homepage
             self.changePage(2)
         except ValueError:  # Catch error if float conversion is not possible
-            print("Error: Invalid weight (whole positive value or decimal only)")
+            tk.messagebox.showerror(
+                title="Invalid value", message="Invalid weight (whole positive value or decimal only)")
+
+    def foodForm(self, query):
+        try:
+            # Food API --------------------------------
+            self.foodapi = nutritionInfo()
+            self.tempData = self.foodapi.makequery(query)
+            self.btnStr.set("Confirm?")
+            self.confLblStr.set(
+                "Are you sure you want: {}g {}?".format(self.tempData["serving_size_g"], self.tempData["name"]))
+            if self.prevEntry == self.tempData["name"]:
+                self.sqlCur.execute("""
+                insert into foodData (email, food, calories, servingsize, protein) values (%s, %s, %s, %s, %s)""",
+                                    (self.email,
+                                     self.tempData['name'],
+                                     self.tempData['calories'],
+                                     self.tempData['serving_size_g'],
+                                     self.tempData['protein_g']))
+                self.DBconn.commit()
+                print("data pushed")
+                time.sleep(0.05)
+                self.changePage(2)
+            self.prevEntry = self.tempData["name"]
+        except ValueError:
+            tk.messagebox.showerror(
+                title="Invalid value(s)", message="Invalid values entered.")
 
 
 if __name__ == "__main__":  # If this file is run directly, run the following code
@@ -178,4 +205,6 @@ if __name__ == "__main__":  # If this file is run directly, run the following co
         app.pack(fill="both", expand=True)  # Fill window
         root.mainloop()  # Run the app
     except Exception as e:  # Catch any other errors
-        input(e)  # Stop program and print error message
+        # show error screen and stop program
+        tk.messagebox.showwarning(title="Fatal Error", message=e)
+        input(e)

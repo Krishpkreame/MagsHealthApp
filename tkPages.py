@@ -181,5 +181,38 @@ class weightForm():
         self.sumbitBtn = ttk.Button(
             self,
             text="Enter",
-            command=lambda: self.inputForm(self.weight.get()))
+            command=lambda: self.weightForm(self.weight.get()))
         self.sumbitBtn.grid(row=4, column=1, pady=10)  # Place 4th row
+
+
+class foodForm():
+    def create(self):
+        self.prevEntry = ""
+        # Create a Frame for login widgets
+        self.entries = ttk.Frame(self)  # Frame
+        self.entries.grid(row=2, column=1, sticky="nsew",
+                          rowspan=2, padx=10, pady=10)
+        # Setup columns
+        self.entries.columnconfigure(index=0, weight=1)
+        self.entries.columnconfigure(index=1, weight=1)
+
+        # Food Entry ---
+        self.foodimg = tk.PhotoImage(file='./img/food.png')  # pswd icon
+        self.foodicon = ttk.Label(self.entries, image=self.foodimg)
+        self.foodicon.grid(row=3, column=0, sticky="ne", pady=10)
+        self.food = ttk.Entry(self.entries)
+        self.food.grid(row=3, column=1, pady=10, padx=10)
+
+        # Confirm Label
+        self.confLblStr = tk.StringVar()
+        self.confLbl = ttk.Label(self, textvariable=self.confLblStr)
+        self.confLbl.grid(row=4, column=1, pady=2)  # Place 4th row
+
+        # Create a button that will call the changePage call (in the main file)
+        self.btnStr = tk.StringVar()
+        self.btnStr.set("Enter")
+        self.sumbitBtn = ttk.Button(
+            self,
+            textvariable=self.btnStr,
+            command=lambda: self.foodForm(self.food.get().lower()))
+        self.sumbitBtn.grid(row=5, column=1, pady=10)  # Place 4th row
