@@ -39,6 +39,7 @@ class App(ttk.Frame):
             tkPages.loginpage,
             tkPages.signpage,
             tkPages.mainpage,
+            tkPages.weightForm,
             tkPages.foodForm]
         # Split into 3 colums
         for i in range(3):
@@ -122,14 +123,23 @@ class App(ttk.Frame):
             # If x value higher than the highest found so far, update new highest value
             if x >= self.highestWeight:
                 self.highestWeight = x
-        fig = plt.figure()  # Change plot into figure object
+        fig = plt.figure(facecolor='#333333')  # Change plot into figure object
         # Adjust the graph y limits so that minimal blank shape
         plt.ylim(self.lowestWeight-10, self.highestWeight+10)
         ax = plt.subplot(111)  # Line graph
-        ax.plot(self.times, self.values)  # plot the values
+        ax.plot(self.times, self.values, 'o-',
+                c="#fa5316")  # plot the values
         # Only use day on x axis (not year or month)
         ax.xaxis.set_major_formatter(
             mdates.DateFormatter('%b-%d'))
+
+        # Graoh styling ------------------------------
+        ax.set_facecolor("#333333")
+        ax.tick_params(axis='x', colors='#d47957')
+        ax.tick_params(axis='y', colors='#d47957')
+        ax.yaxis.grid(linestyle="--", linewidth=0.3, color="#666666")
+        for i in ['top', 'bottom', 'left', 'right']:
+            ax.spines[i].set_color('#736e6c')
         # Save the image file
         fig.savefig('./img/graph.png')
 

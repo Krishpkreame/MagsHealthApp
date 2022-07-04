@@ -142,23 +142,42 @@ class mainpage():  # ! Add comments
             row=2,
             column=1,
             pady=10)
-        self.formBtn = ttk.Button(
-            self,
+        # Create a Frame for bunch of buttons sideways
+        self.multibtn = ttk.Frame(self)  # Frame
+        self.multibtn.grid(row=3, column=1, pady=20)
+        # Setup columns
+        for i in range(2):
+            self.multibtn.columnconfigure(index=i, weight=1)
+        # Create button for weight form in multibtn frame
+        self.weightBtn = ttk.Button(
+            self.multibtn,
             text="Weight",
             command=lambda: self.changePage(3))
-        self.formBtn.grid(
-            row=3,
+        # Place it on first from left
+        self.weightBtn.grid(
+            row=0,
+            column=0,
+            padx=10)
+        # Create button for food form in multibtn frame
+        self.foodBtn = ttk.Button(
+            self.multibtn,
+            text="Food",
+            command=lambda: self.changePage(4))
+        # Place it on second from left
+        self.foodBtn.grid(
+            row=0,
             column=1,
-            pady=10)
+            padx=10)
+        # Create button to logout and goto login page
         self.logoutBtn = ttk.Button(
-            self,
+            self.multibtn,
             text="Logout",
-            style="small.TButton",
             command=lambda: self.changePage(0))
+        # Place it on thrid from left
         self.logoutBtn.grid(
-            row=4,
-            column=1,
-            pady=1)
+            row=0,
+            column=2,
+            padx=10)
 
 
 class weightForm():
