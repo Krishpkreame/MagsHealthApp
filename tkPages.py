@@ -1,6 +1,7 @@
 # Import Base Libs
 import tkinter as tk
 from tkinter import ttk
+from PIL import ImageTk, Image
 
 """
 Make a class for every new page you want to create, this is to better organize your TK pages.
@@ -127,17 +128,21 @@ class mainpage():  # ! Add comments
         # Create graph before creating other widgets
         self.graphInit()
         # Get the photo from computer
-        self.photo = tk.PhotoImage(file='./img/graph.png')
-
+        self.image = Image.open('./img/graph.png')
+        # Resize from 640 × 480 to 480 x 360
+        self.image = self.image.resize((480, 360), Image.ANTIALIAS)
+        # Convert resized img to PhotoImage
+        self.photo = ImageTk.PhotoImage(self.image)
         # Make a label using the image we got
         self.image_label = ttk.Label(self, image=self.photo,)
         self.image_label.grid(row=1, column=1)  # Place 1st row
-
+        # Welcome label
         self.welcomelabel = ttk.Label(
             self,
             text="Login successful!\nWelcome to the main page!",
             font=("Arial", 25)
         )
+        # Place label
         self.welcomelabel.grid(
             row=2,
             column=1,

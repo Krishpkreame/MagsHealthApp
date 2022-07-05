@@ -3,20 +3,19 @@ import datetime
 import time
 import tkinter as tk
 from tkinter import ttk
-from tkinter.messagebox import showerror
 import pymysql
 import bcrypt
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-# Food API
+# Custom libaries
 from PYfoodapi import nutritionInfo
-# Import pages
 import tkPages
 
 
-class App(ttk.Frame):
+class App(ttk.Frame):  # App class TKinter
     # Initizlize function
     def __init__(self, parent):
+        self.currentPage = 0  # Var to keep track of current page
         # SQL DATABASE ----------------------------------
         # Setup sql connection
         self.DBconn = pymysql.connect(
@@ -29,10 +28,6 @@ class App(ttk.Frame):
         # Tkinter setup --------------------------------
         ttk.Frame.__init__(self)  # initialize the superclass (frame)
         self.name = "Placeholder"  # Class variables
-        # Setup some styling
-        styl = ttk.Style()
-        styl.configure('small.TButton', font=(None, 7))
-        styl.configure('big.TButton', font=(None, 18))
         # Page list - ADD NEW CLASSES YOU MAKE TO LIST!
         # (pages will be indexed chronologically)
         self.availablePages = [
@@ -45,16 +40,17 @@ class App(ttk.Frame):
         for i in range(3):
             self.columnconfigure(index=i, weight=1)
         # Show first page on list at start up
-        self.availablePages[0].create(self)
+        self.changePage(0)
 
     # Function to change between pages
     def changePage(self, nmbr):
         for widget in self.winfo_children():  # For each widget on scren
             widget.destroy()  # Destory each widget found
         # Run the create function on the desired page
+        self.currentPage = nmbr
         self.availablePages[nmbr].create(self)
 
-    # Login func to login and move to next screen
+    # Login func to login and move to next screen``
     def login(self, email, password):
         # SQL - get hashed password for email from DB
         self.sqlCur.execute(
@@ -96,6 +92,7 @@ class App(ttk.Frame):
             tk.messagebox.showerror(
                 title="Error", message="No fields can be left blank")
 
+    # Graph func will create ./img/graph.png to show on homepage
     def graphInit(self):
         # Sql cmd to get 15 most recent data values for the current user from DB
         self.sqlCur.execute("""
@@ -123,26 +120,42 @@ class App(ttk.Frame):
             # If x value higher than the highest found so far, update new highest value
             if x >= self.highestWeight:
                 self.highestWeight = x
-        fig = plt.figure(facecolor='#333333')  # Change plot into figure object
-        # Adjust the graph y limits so that minimal blank shape
-        plt.ylim(self.lowestWeight-10, self.highestWeight+10)
-        ax = plt.subplot(111)  # Line graph
-        ax.plot(self.times, self.values, 'o-',
-                c="#fa5316")  # plot the values
-        # Only use day on x axis (not year or month)
-        ax.xaxis.set_major_formatter(
-            mdates.DateFormatter('%b-%d'))
+        if dodarkmode:  # If darkmode then
+            # Change plot into figure object, dark mode
+            fig = plt.figure(facecolor='#333333')
+            # Adjust the graph y limits so that minimal blank shape
+            plt.ylim(self.lowestWeight-10, self.highestWeight+10)
+            ax = plt.subplot(111)  # Line graph
+            # plot values in line graph , darkmode
+            ax.plot(self.times, self.values, 'o-', c="#fa5316")
+            # Only use day and month shorthand name on x axis (not year)
+            ax.xaxis.set_major_formatter(
+                mdates.DateFormatter('%b-%d'))
+            # Set background to dark color, darkmode
+            ax.set_facecolor("#333333")
+            # Set x and y axis color , darkmode
+            ax.tick_params(axis='x', colors='#d47957')
+            ax.tick_params(axis='y', colors='#d47957')
+            # Add horizontal grid lines, darkmode
+            ax.yaxis.grid(linestyle="--", linewidth=0.3, color="#666666")
+            # Change all outlines of graph to color , darkmode
+            for i in ['top', 'bottom', 'left', 'right']:
+                ax.spines[i].set_color('#736e6c')
+            # Save the image file
+            fig.savefig('./img/graph.png')
+        else:  # Light mode
+            fig = plt.figure()  # Change plot into figure object , light mode
+            # Adjust the graph y limits so that minimal blank shape, light mode
+            plt.ylim(self.lowestWeight-10, self.highestWeight+10)
+            ax = plt.subplot(111)  # Line graph, light mode
+            ax.plot(self.times, self.values)  # plot the values, light mode
+            # Only use day on x axis (not year or month), light mode
+            ax.xaxis.set_major_formatter(
+                mdates.DateFormatter('%b-%d'))
+            # Save the image file
+            fig.savefig('./img/graph.png')
 
-        # Graoh styling ------------------------------
-        ax.set_facecolor("#333333")
-        ax.tick_params(axis='x', colors='#d47957')
-        ax.tick_params(axis='y', colors='#d47957')
-        ax.yaxis.grid(linestyle="--", linewidth=0.3, color="#666666")
-        for i in ['top', 'bottom', 'left', 'right']:
-            ax.spines[i].set_color('#736e6c')
-        # Save the image file
-        fig.savefig('./img/graph.png')
-
+    # Weight func to add an entry to DB for tracking weight
     def weightForm(self, weight):
         # Sql cmd to insert new data into the db
         try:
@@ -179,15 +192,21 @@ class App(ttk.Frame):
             tk.messagebox.showerror(
                 title="Invalid value", message="Invalid weight (whole positive value or decimal only)")
 
+    # Food func to add an entry to DB for calorie counting
     def foodForm(self, query):
         try:
             # Food API --------------------------------
-            self.foodapi = nutritionInfo()
+            self.foodapi = nutritionInfo()  # make new class instance
+            # Make a new query using foodapi, and find nutr of wanted food
             self.tempData = self.foodapi.makequery(query)
+            # Set the button text to `confirm` to ask user if food is correct
             self.btnStr.set("Confirm?")
+            # Set a label's text so the amount of food and food name so ensure user food is correct
             self.confLblStr.set(
                 "Are you sure you want: {}g {}?".format(self.tempData["serving_size_g"], self.tempData["name"]))
+            # If what the user wrote on prev btn press is same as current btn press
             if self.prevEntry == self.tempData["name"]:
+                # Add all food nutrition we want into the database
                 self.sqlCur.execute("""
                 insert into foodData (email, food, calories, servingsize, protein) values (%s, %s, %s, %s, %s)""",
                                     (self.email,
@@ -195,26 +214,70 @@ class App(ttk.Frame):
                                      self.tempData['calories'],
                                      self.tempData['serving_size_g'],
                                      self.tempData['protein_g']))
+                # Commit the DB changes
                 self.DBconn.commit()
-                print("data pushed")
                 time.sleep(0.05)
+                # After the entry is in the DB go back to homepage
                 self.changePage(2)
+            # After if statment set the var prevEntry to what the user wrote(for next btn press)
             self.prevEntry = self.tempData["name"]
         except ValueError:
+            # If what the user wrote isnt a food show error box
             tk.messagebox.showerror(
                 title="Invalid value(s)", message="Invalid values entered.")
 
+# ? OUTSIDE CLASS
+# -----------------------------------------------------
 
+
+def toggleTheme(reloadNmbr):  # toggle theme to switch themes, and reload page is needed
+    global dodarkmode, app  # Access global dodarkmode bool and app instance
+    if dodarkmode:  # If dark mode is enabled
+        root.tk.call("set_theme", "light")  # make it light mode
+        loadstyles()  # Load styles
+        dodarkmode = not dodarkmode  # Change bool to opposite
+        # Change image on toggle button to light mode img
+        themetogg.config(image=lighton, activebackground='white')
+        app.changePage(reloadNmbr)  # Reload page so new styles apply
+    else:
+        root.tk.call("set_theme", "dark")  # make it dark mode
+        loadstyles()  # Loadstyles
+        dodarkmode = not dodarkmode  # Change bool to opposite
+        # Change image on toggle button to dark mode img
+        themetogg.config(image=darkon, activebackground='gray')
+        app.changePage(reloadNmbr)  # Reload page so new styles apply
+
+
+def loadstyles():  # Func to load styles after theme change
+    global appstyles  # access the global styles
+    appstyles.configure('small.TButton', font=(None, 7))  # small button
+    appstyles.configure('big.TButton', font=(None, 18))  # big button
+
+
+dodarkmode = True  # Bool for darkmode
 if __name__ == "__main__":  # If this file is run directly, run the following code
     try:  # Run the following code
         root = tk.Tk()  # Create a window
         root.title("Khap")  # Add title
+        appstyles = ttk.Style()  # make app empty styles
         root.tk.call("source", "azure.tcl")  # Add the azure theme
         root.tk.call("set_theme", "dark")  # make it dark mode - morbin time
+        loadstyles()
         app = App(root)  # Link the App and window we made
         app.pack(fill="both", expand=True)  # Fill window
+        # Dark mode switch -----------------------
+        # Image for dark mode switch
+        darkon = tk.PhotoImage(file="./img/themedark.png")
+        # Image for light mode switch
+        lighton = tk.PhotoImage(file="./img/themelight.png")
+        # Create button with dark mode deflaut
+        themetogg = tk.Button(bd=0, image=darkon,
+                              command=lambda: toggleTheme(app.currentPage),
+                              highlightthickness=0, relief="flat", borderwidth=0)
+        # Place on very top left on window
+        themetogg.place(x=-1, y=-1, width=32, height=16, anchor='nw')
         root.mainloop()  # Run the app
     except Exception as e:  # Catch any other errors
         # show error screen and stop program
         tk.messagebox.showwarning(title="Fatal Error", message=e)
-        input(e)
+        input(e)  # stop program
