@@ -1,3 +1,8 @@
+# ----------------------------------------------------------------
+# Adds random apporiate data to the database for testing the Graph and DB api
+# ----------------------------------------------------------------
+
+
 import pymysql
 import random
 import time

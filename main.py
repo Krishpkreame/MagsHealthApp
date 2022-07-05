@@ -1,15 +1,20 @@
-# Base libaries
+# Date/Time libs
 import datetime
 import time
+# Tkinter libs
 import tkinter as tk
+from tkinter.messagebox import *
 from tkinter import ttk
+import tkPages  # - custom
+# Database libs
 import pymysql
 import bcrypt
+# Graph Libs
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-# Custom libaries
+# Extra libaries
 from PYfoodapi import nutritionInfo
-import tkPages
+import email_validator
 
 
 class App(ttk.Frame):  # App class TKinter
@@ -67,29 +72,37 @@ class App(ttk.Frame):  # App class TKinter
                 # Move to homepage
                 self.changePage(2)
             else:  # If hashed password dont match
-                tk.messagebox.showwarning(
+                showwarning(
                     title="Error", message="Incorrect password")
         else:  # If sql email lookup returns nothing
-            tk.messagebox.showerror(title="Invalid username",
-                                    message="User does not exist (Wrong email)")
+            showerror(title="Invalid username",
+                      message="User does not exist (Wrong email)")
 
     # Signup func to create new user in db
-    def signup(self, name, email, password, confirmPassword):
+    def signup(self, name, tempemail, password, confirmPassword):
         # Check if any inputs empty
-        if name != '' and email != '' and password != '' and confirmPassword != '':
-            # Check if password and confirm password match
-            if password == confirmPassword:
-                # Hash the password
-                self.pswdHashed = bcrypt.hashpw(
-                    bytes(password.strip(), 'utf-8'), bcrypt.gensalt())
-                # Insert name, email, hashed password into DB as new user
-                self.sqlCur.execute("""
-                insert into login (name, email, pswdHash) values (%s, %s, %s)""",
-                                    (name, email, self.pswdHashed))
-                # Due to sql being a insert command commit is needed
-                self.DBconn.commit()
+        if name != '' and tempemail != '' and password != '' and confirmPassword != '':
+            try:
+                # Check if email is valid
+                email = email_validator.validate_email(tempemail).email
+                # Check if password and confirm password match
+                if password == confirmPassword:
+                    # Hash the password
+                    self.pswdHashed = bcrypt.hashpw(
+                        bytes(password.strip(), 'utf-8'), bcrypt.gensalt())
+                    # Insert name, email, hashed password into DB as new user
+                    self.sqlCur.execute("""
+                    insert into login (name, email, pswdHash) values (%s, %s, %s)""",
+                                        (name, email, self.pswdHashed))
+                    # Due to sql being a insert command commit is needed
+                    self.DBconn.commit()
+                    print("Successfully signed up")
+                    self.changePage(0)
+            except BaseException as e:
+                print(e)
+                showwarning(title="Invalid Email", message=e)
         else:  # If any inputs are empty
-            tk.messagebox.showerror(
+            showerror(
                 title="Error", message="No fields can be left blank")
 
     # Graph func will create ./img/graph.png to show on homepage
@@ -189,7 +202,7 @@ class App(ttk.Frame):  # App class TKinter
             # After the entry is in the DB go back to homepage
             self.changePage(2)
         except ValueError:  # Catch error if float conversion is not possible
-            tk.messagebox.showerror(
+            showerror(
                 title="Invalid value", message="Invalid weight (whole positive value or decimal only)")
 
     # Food func to add an entry to DB for calorie counting
@@ -223,7 +236,7 @@ class App(ttk.Frame):  # App class TKinter
             self.prevEntry = self.tempData["name"]
         except ValueError:
             # If what the user wrote isnt a food show error box
-            tk.messagebox.showerror(
+            showerror(
                 title="Invalid value(s)", message="Invalid values entered.")
 
 # ? OUTSIDE CLASS
@@ -279,5 +292,5 @@ if __name__ == "__main__":  # If this file is run directly, run the following co
         root.mainloop()  # Run the app
     except Exception as e:  # Catch any other errors
         # show error screen and stop program
-        tk.messagebox.showwarning(title="Fatal Error", message=e)
+        showwarning(title="Fatal Error", message=e)
         input(e)  # stop program

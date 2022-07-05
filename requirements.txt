@@ -1,0 +1,8 @@
+tk
+matplotlib == 3.5.2
+pymysql == 1.0.2
+bcrypt == 3.2.0
+email-validator == 1.2.1
+requests == 2.27.1
+pillow == 9.1.1
+tkinter

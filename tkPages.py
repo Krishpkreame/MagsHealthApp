@@ -123,7 +123,7 @@ class signpage():  # signup page page class
         self.loginBtn.grid(row=5, column=1, pady=10)  # Place 4th row
 
 
-class mainpage():  # ! Add comments
+class mainpage():  # main page class
     def create(self):
         # Create graph before creating other widgets
         self.graphInit()
@@ -185,7 +185,7 @@ class mainpage():  # ! Add comments
             padx=10)
 
 
-class weightForm():
+class weightForm():  # page that lets user enter weight to DB
     def create(self):
         # Create a Frame for login widgets
         self.entries = ttk.Frame(self)  # Frame
@@ -209,7 +209,7 @@ class weightForm():
         self.sumbitBtn.grid(row=4, column=1, pady=10)  # Place 4th row
 
 
-class foodForm():
+class foodForm():  # page that lets the user enter food nutr to DB
     def create(self):
         self.prevEntry = ""
         # Create a Frame for login widgets

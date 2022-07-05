@@ -1,12 +1,12 @@
-import requests
-import json
+import requests  # Make online requests
+import json  # Parse json response to py dict
 
 
-class nutritionInfo:
-    def __init__(self):
-        self.__apikey = "C6e95NIQxZze2dwtANO0+A==C8xURwL7essFClbv"
+class nutritionInfo:  # Api class
+    def __init__(self):  # initialize
+        self.__apikey = "C6e95NIQxZze2dwtANO0+A==C8xURwL7essFClbv"  # Api key for api-ninja
 
-    def makequery(self, foodQuery):
+    def makequery(self, foodQuery):  # func to make food query
         # incase food not found
         try:
             # url to get requests from
