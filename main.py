@@ -47,6 +47,12 @@ class App(ttk.Frame):  # App class TKinter
         # Show first page on list at start up
         self.changePage(0)
 
+    # Func to quit app
+    def quitapp(self):
+        global root  # Get root window
+        print("Quitting app")
+        root.quit()  # quit it
+
     # Function to change between pages
     def changePage(self, nmbr):
         for widget in self.winfo_children():  # For each widget on scren
@@ -241,7 +247,6 @@ class App(ttk.Frame):  # App class TKinter
 
 # ? OUTSIDE CLASS
 # -----------------------------------------------------
-
 
 def toggleTheme(reloadNmbr):  # toggle theme to switch themes, and reload page is needed
     global dodarkmode, app  # Access global dodarkmode bool and app instance

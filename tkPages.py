@@ -53,13 +53,26 @@ class loginpage():  # login page class
             command=lambda: self.login(self.email.get(), self.pswd.get()))  # ChangePage 1, meaning it will open index 1 of pages list
         self.loginBtn.grid(row=4, column=1, pady=10)  # Place 4th row
 
+        # Frame for small btns
+        self.smallbtns = ttk.Frame(self)  # Frame
+        self.smallbtns.grid(row=5,column=1, pady=10) 
         # Signup button
         self.signupBtn = ttk.Button(
-            self,
+            self.smallbtns,
             text="Signup",
             style="small.TButton",
             command=lambda: self.changePage(1))  # ChangePage 1, meaning it will open index 1 of pages list
-        self.signupBtn.grid(row=5, column=1, pady=10)  # Place 4th row
+        self.signupBtn.grid(row=0, column=0, padx=3)  # Place 4th row
+
+        # Quit button
+        self.quitBtn = ttk.Button(
+            self.smallbtns,
+            text="Quit",
+            style="small.TButton",
+            command=lambda: self.quitapp())
+        self.quitBtn.grid(row=0, column=1, padx=3)  # Place 4th row
+
+
 
 
 class signpage():  # signup page page class
@@ -189,7 +202,7 @@ class weightForm():  # page that lets user enter weight to DB
     def create(self):
         # Create a Frame for login widgets
         self.entries = ttk.Frame(self)  # Frame
-        self.entries.grid(row=2, column=1, sticky="nsew", rowspan=2)
+        self.entries.grid(row=2, column=1, padx=10, pady=20, sticky="nsew", rowspan=2)
         # Setup columns
         self.entries.columnconfigure(index=0, weight=1)
         self.entries.columnconfigure(index=1, weight=1)
@@ -205,17 +218,25 @@ class weightForm():  # page that lets user enter weight to DB
         self.sumbitBtn = ttk.Button(
             self,
             text="Enter",
+            style="big.TButton",
             command=lambda: self.weightForm(self.weight.get()))
         self.sumbitBtn.grid(row=4, column=1, pady=10)  # Place 4th row
 
+        # Return home btn
+        self.homeBtn = ttk.Button(
+            self,
+            text="Home",
+            style="small.TButton",
+            command=lambda: self.changePage(2))
+        self.homeBtn.grid(row=5, column=1, pady=5)  # Place 5th row
 
 class foodForm():  # page that lets the user enter food nutr to DB
     def create(self):
         self.prevEntry = ""
         # Create a Frame for login widgets
         self.entries = ttk.Frame(self)  # Frame
-        self.entries.grid(row=2, column=1, sticky="nsew",
-                          rowspan=2, padx=10, pady=10)
+        self.entries.grid(row=1, column=1, sticky="nsew",
+                          rowspan=2, padx=10, pady=20)
         # Setup columns
         self.entries.columnconfigure(index=0, weight=1)
         self.entries.columnconfigure(index=1, weight=1)
@@ -223,14 +244,14 @@ class foodForm():  # page that lets the user enter food nutr to DB
         # Food Entry ---
         self.foodimg = tk.PhotoImage(file='./img/food.png')  # pswd icon
         self.foodicon = ttk.Label(self.entries, image=self.foodimg)
-        self.foodicon.grid(row=3, column=0, sticky="ne", pady=10)
+        self.foodicon.grid(row=2, column=0, sticky="ne")
         self.food = ttk.Entry(self.entries)
-        self.food.grid(row=3, column=1, pady=10, padx=10)
+        self.food.grid(row=2, column=1, padx=10)
 
         # Confirm Label
         self.confLblStr = tk.StringVar()
         self.confLbl = ttk.Label(self, textvariable=self.confLblStr)
-        self.confLbl.grid(row=4, column=1, pady=2)  # Place 4th row
+        self.confLbl.grid(row=3, column=1, pady=2)  # Place 4th row
 
         # Create a button that will call the changePage call (in the main file)
         self.btnStr = tk.StringVar()
@@ -238,5 +259,14 @@ class foodForm():  # page that lets the user enter food nutr to DB
         self.sumbitBtn = ttk.Button(
             self,
             textvariable=self.btnStr,
+            style="big.TButton",
             command=lambda: self.foodForm(self.food.get().lower()))
-        self.sumbitBtn.grid(row=5, column=1, pady=10)  # Place 4th row
+        self.sumbitBtn.grid(row=4, column=1, pady=5)  # Place 4th row
+
+        # Return home btn
+        self.homeBtn = ttk.Button(
+            self,
+            text="Home",
+            style="small.TButton",
+            command=lambda: self.changePage(2))
+        self.homeBtn.grid(row=5, column=1, pady=5)  # Place 5th row
