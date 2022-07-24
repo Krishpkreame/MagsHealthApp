@@ -5,7 +5,7 @@ import time
 import tkinter as tk
 from tkinter.messagebox import *
 from tkinter import ttk
-import tkPages  # - custom
+import tkinter_pages  # - custom
 # Database libs
 import pymysql
 import bcrypt
@@ -13,7 +13,7 @@ import bcrypt
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 # Extra libaries
-from PYfoodapi import nutritionInfo
+from khap_food_api import nutritionInfo
 import email_validator
 
 
@@ -36,11 +36,12 @@ class App(ttk.Frame):  # App class TKinter
         # Page list - ADD NEW CLASSES YOU MAKE TO LIST!
         # (pages will be indexed chronologically)
         self.availablePages = [
-            tkPages.loginpage,
-            tkPages.signpage,
-            tkPages.mainpage,
-            tkPages.weightForm,
-            tkPages.foodForm]
+            tkinter_pages.loginpage,
+            tkinter_pages.signpage,
+            tkinter_pages.mainpage,
+            tkinter_pages.weightForm,
+            tkinter_pages.foodForm,
+            tkinter_pages.foodHistory]
         # Split into 3 colums
         for i in range(3):
             self.columnconfigure(index=i, weight=1)
@@ -65,14 +66,14 @@ class App(ttk.Frame):  # App class TKinter
     def login(self, email, password):
         # SQL - get hashed password for email from DB
         self.sqlCur.execute(
-            "SELECT `pswdHash`,name FROM login WHERE `email`=%s", (email))
+            "SELECT `pswdHash`,name FROM login WHERE `email`=%s", (email.lower()))
         self.sqlpswdresult = self.sqlCur.fetchone()
         # Check if email exists
         if self.sqlpswdresult is not None:
             # Password checking --- convert hashed DB pswd and user input pswd to bytes
             if bcrypt.checkpw(bytes(password, 'utf-8'), bytes(self.sqlpswdresult[0], 'utf-8')):
                 # Save name and email locally as class variables
-                self.email = email
+                self.email = email.lower()
                 self.name = self.sqlpswdresult[1]
                 print("Correct password\nLogined as", self.name, self.email)
                 # Move to homepage
@@ -90,7 +91,7 @@ class App(ttk.Frame):  # App class TKinter
         if name != '' and tempemail != '' and password != '' and confirmPassword != '':
             try:
                 # Check if email is valid
-                email = email_validator.validate_email(tempemail).email
+                email = email_validator.validate_email(tempemail.lower()).email
                 # Check if password and confirm password match
                 if password == confirmPassword:
                     # Hash the password
@@ -245,6 +246,18 @@ class App(ttk.Frame):  # App class TKinter
             showerror(
                 title="Invalid value(s)", message="Invalid values entered.")
 
+    def getfoodhistory(self):
+        # Sql cmd to get most recent data values for the current user from DB
+        self.sqlCur.execute("""
+            select food,calories,servingsize,protein
+            from foodData
+            where `email`=%s
+            order by id desc
+            limit 30;""",
+                            (self.email))
+        foodresult = self.sqlCur.fetchall()
+        return foodresult
+
 # ? OUTSIDE CLASS
 # -----------------------------------------------------
 
@@ -265,14 +278,13 @@ def toggleTheme(reloadNmbr):  # toggle theme to switch themes, and reload page i
         themetogg.config(image=darkon, activebackground='gray')
         app.changePage(reloadNmbr)  # Reload page so new styles apply
 
-
 def loadstyles():  # Func to load styles after theme change
     global appstyles  # access the global styles
     appstyles.configure('small.TButton', font=(None, 7))  # small button
     appstyles.configure('big.TButton', font=(None, 18))  # big button
 
-
 dodarkmode = True  # Bool for darkmode
+
 if __name__ == "__main__":  # If this file is run directly, run the following code
     try:  # Run the following code
         root = tk.Tk()  # Create a window

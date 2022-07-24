@@ -12,7 +12,6 @@ Always use grid, not pack or place
 """
 ########################## - Program - ##########################
 
-
 class loginpage():  # login page class
     def create(self):  # Function will create widgets when invoked
         # Get the photo from computer
@@ -71,9 +70,6 @@ class loginpage():  # login page class
             style="small.TButton",
             command=lambda: self.quitapp())
         self.quitBtn.grid(row=0, column=1, padx=3)  # Place 4th row
-
-
-
 
 class signpage():  # signup page page class
     def create(self):  # Function will create widgets when invoked
@@ -135,7 +131,6 @@ class signpage():  # signup page page class
             command=lambda: self.changePage(0))  # ChangePage 1, meaning it will open index 1 of pages list
         self.loginBtn.grid(row=5, column=1, pady=10)  # Place 4th row
 
-
 class mainpage():  # main page class
     def create(self):
         # Create graph before creating other widgets
@@ -164,7 +159,7 @@ class mainpage():  # main page class
         self.multibtn = ttk.Frame(self)  # Frame
         self.multibtn.grid(row=3, column=1, pady=20)
         # Setup columns
-        for i in range(2):
+        for i in range(3):
             self.multibtn.columnconfigure(index=i, weight=1)
         # Create button for weight form in multibtn frame
         self.weightBtn = ttk.Button(
@@ -186,17 +181,26 @@ class mainpage():  # main page class
             row=0,
             column=1,
             padx=10)
+        # Create button for history of food in multibtn frame
+        self.historyBtn = ttk.Button(
+            self.multibtn,
+            text="History",
+            command=lambda: self.changePage(5))
+        # Place it on third from left
+        self.historyBtn.grid(
+            row=0,
+            column=2,
+            padx=10)
         # Create button to logout and goto login page
         self.logoutBtn = ttk.Button(
             self.multibtn,
             text="Logout",
             command=lambda: self.changePage(0))
-        # Place it on thrid from left
+        # Place it on fourth from left
         self.logoutBtn.grid(
             row=0,
-            column=2,
+            column=3,
             padx=10)
-
 
 class weightForm():  # page that lets user enter weight to DB
     def create(self):
@@ -270,3 +274,52 @@ class foodForm():  # page that lets the user enter food nutr to DB
             style="small.TButton",
             command=lambda: self.changePage(2))
         self.homeBtn.grid(row=5, column=1, pady=5)  # Place 5th row
+
+class foodHistory(): # page that get data for db and displays past food ate
+    def create(self):
+        # Create label to show which user the data is shown for
+        self.usernamelbl = ttk.Label(self, text=self.name+"'s Food History", font=("Arial", 25))
+        self.usernamelbl.pack()
+
+        # Create frame that will make a border and contain the table for showing data
+        self.treeviewframe = ttk.Frame(self)
+        self.treeviewframe.pack(pady=20,padx=20)
+
+        # Create a treeview to show data in
+        self.foodtable = ttk.Treeview(self.treeviewframe)
+
+        # Create columns for the table
+        self.foodtable['columns'] = ('user_food', 'user_cals', 'user_prot', 'user_size')
+
+        # Setup columns for the data
+        self.foodtable.column("#0", width=0)
+        self.foodtable.column("user_food",anchor="center", width=80)
+        self.foodtable.column("user_cals",anchor="center",width=80)
+        self.foodtable.column("user_prot",anchor="center",width=80)
+        self.foodtable.column("user_size",anchor="center",width=80)
+
+        # Setup headings for the table
+        self.foodtable.heading("#0",text="",anchor="center")
+        self.foodtable.heading("user_food",text="Food",anchor="center")
+        self.foodtable.heading("user_cals",text="Calories",anchor="center")
+        self.foodtable.heading("user_prot",text="Protein",anchor="center")
+        self.foodtable.heading("user_size",text="Serving Size",anchor="center")
+
+        # Get prev 30 data food values from DB
+        self.res = self.getfoodhistory()
+
+        # Insert data into table
+        self.tempz = 0
+        for i in self.res:
+            self.foodtable.insert(parent='',index='end',text='',
+            values=(i[0],float(i[1]),float(i[2]),float(i[3])),iid=self.tempz)
+            self.tempz += 1
+        self.foodtable.pack()
+
+        # Return home btn      
+        self.backBtn = ttk.Button(
+            self,
+            text="Back",
+            style="big.TButton",
+            command=lambda: self.changePage(2))  # ChangePage 1, meaning it will open index 1 of pages list
+        self.backBtn.pack(pady=10)
