@@ -15,6 +15,8 @@ import matplotlib.dates as mdates
 # Extra libaries
 from khap_food_api import nutritionInfo
 import email_validator
+import requests
+import random
 
 
 class App(ttk.Frame):  # App class TKinter
@@ -24,7 +26,7 @@ class App(ttk.Frame):  # App class TKinter
         # SQL DATABASE ----------------------------------
         # Setup sql connection
         self.DBconn = pymysql.connect(
-            host='121.98.68.25',
+            host='121.98.68.25', 
             port=1706,
             user='appuser',
             passwd='o6Rf@K*#5%sLDt',
@@ -182,7 +184,9 @@ class App(ttk.Frame):  # App class TKinter
             # Convert texted string to float
             self.weightTemp = float(weight.strip())
             if self.weightTemp <= 0:  # If weight is negative or zero
-                raise ValueError  # Raise value error
+                raise ValueError("Weight must be positive")
+            elif self.weightTemp > 150:
+                raise ValueError("Unrealistic weight")
             # Get current date in format Year month date
             self.todayStrtemp = f"{datetime.datetime.now():%Y-%m-%d}"
             # Input correct values into the sql cmd
@@ -246,18 +250,32 @@ class App(ttk.Frame):  # App class TKinter
             showerror(
                 title="Invalid value(s)", message="Invalid values entered.")
 
+    # Function to get past 30 food entries for a user
     def getfoodhistory(self):
         # Sql cmd to get most recent data values for the current user from DB
         self.sqlCur.execute("""
-            select food,calories,servingsize,protein
+            select food,calories,protein,servingsize
             from foodData
             where `email`=%s
             order by id desc
             limit 30;""",
                             (self.email))
+        # Get all results
         foodresult = self.sqlCur.fetchall()
-        return foodresult
+        return foodresult # and return them 
 
+    # Func to get a random qoute for user
+    def qouteoftheday(self):
+        # Create a random seed based on the date and
+        # the first and last letters of user's name. 
+        self.currentdate = str(datetime.datetime.now())[:10] # date only (no time)
+        self.currentdate = self.currentdate + self.name[0] + self.name[-1]
+        print(self.currentdate, "is the seed") # print seed
+        random.seed(self.currentdate) # Set random lib seed to users seed
+        # Using requests, get a random quote from the github repo json file
+        self.quoteRepo = requests.get('https://raw.githubusercontent.com/dwyl/quotes/main/quotes.json').json()
+        self.randomQuoteIndex = random.randint(0,len(self.quoteRepo))
+        return self.quoteRepo[self.randomQuoteIndex]['text'] # return just text
 # ? OUTSIDE CLASS
 # -----------------------------------------------------
 

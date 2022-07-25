@@ -70,6 +70,8 @@ class loginpage():  # login page class
             style="small.TButton",
             command=lambda: self.quitapp())
         self.quitBtn.grid(row=0, column=1, padx=3)  # Place 4th row
+        # Set focus on email entry
+        self.email.focus()  
 
 class signpage():  # signup page page class
     def create(self):  # Function will create widgets when invoked
@@ -133,6 +135,19 @@ class signpage():  # signup page page class
 
 class mainpage():  # main page class
     def create(self):
+        # Get random qoute of the day for that user
+        self.q = self.qouteoftheday()
+        # Welcome label
+        self.welcomelabel = ttk.Label(
+            self,
+            text="Welcome back "+ self.name.capitalize() +"!",
+            font=("Arial", 25)
+        )
+        # Place label
+        self.welcomelabel.grid(
+            row=1,
+            column=1,
+            pady=10)
         # Create graph before creating other widgets
         self.graphInit()
         # Get the photo from computer
@@ -143,21 +158,13 @@ class mainpage():  # main page class
         self.photo = ImageTk.PhotoImage(self.image)
         # Make a label using the image we got
         self.image_label = ttk.Label(self, image=self.photo,)
-        self.image_label.grid(row=1, column=1)  # Place 1st row
-        # Welcome label
-        self.welcomelabel = ttk.Label(
-            self,
-            text="Login successful!\nWelcome to the main page!",
-            font=("Arial", 25)
-        )
-        # Place label
-        self.welcomelabel.grid(
-            row=2,
-            column=1,
-            pady=10)
+        self.image_label.grid(row=2, column=1)  # Place 1st row
+        # Make a label for the qoute
+        self.qoutelbl = ttk.Label(self, text=self.q, font=("Arial", 10),wraplength=400)
+        self.qoutelbl.grid(row=3, column=1,pady=3)
         # Create a Frame for bunch of buttons sideways
         self.multibtn = ttk.Frame(self)  # Frame
-        self.multibtn.grid(row=3, column=1, pady=20)
+        self.multibtn.grid(row=4, column=1, pady=20)
         # Setup columns
         for i in range(3):
             self.multibtn.columnconfigure(index=i, weight=1)
@@ -201,7 +208,7 @@ class mainpage():  # main page class
             row=0,
             column=3,
             padx=10)
-
+        
 class weightForm():  # page that lets user enter weight to DB
     def create(self):
         # Create a Frame for login widgets
@@ -214,7 +221,7 @@ class weightForm():  # page that lets user enter weight to DB
         # Weight Entry ---
         self.weightimg = tk.PhotoImage(file='./img/weight.png')  # pswd icon
         self.weighticon = ttk.Label(self.entries, image=self.weightimg)
-        self.weighticon.grid(row=3, column=0, sticky="ne", pady=10)
+        self.weighticon.grid(row=3, column=0, sticky="ne", pady=20,padx=10)
         self.weight = ttk.Entry(self.entries)
         self.weight.grid(row=3, column=1, pady=10)
 
@@ -248,9 +255,9 @@ class foodForm():  # page that lets the user enter food nutr to DB
         # Food Entry ---
         self.foodimg = tk.PhotoImage(file='./img/food.png')  # pswd icon
         self.foodicon = ttk.Label(self.entries, image=self.foodimg)
-        self.foodicon.grid(row=2, column=0, sticky="ne")
+        self.foodicon.grid(row=2, column=0, sticky="ne", pady=20,padx=10)
         self.food = ttk.Entry(self.entries)
-        self.food.grid(row=2, column=1, padx=10)
+        self.food.grid(row=2, column=1, pady=10)
 
         # Confirm Label
         self.confLblStr = tk.StringVar()
