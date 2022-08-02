@@ -22,13 +22,15 @@ import random
 class App(ttk.Frame):  # App class TKinter
     # Initizlize function
     def __init__(self, parent):
+        self.quotesgiturl = """
+        https://raw.githubusercontent.com/dwyl/quotes/main/quotes.json"""
         self.currentPage = 0  # Var to keep track of current page
         # SQL DATABASE ----------------------------------
         # Setup sql connection
         self.DBconn = pymysql.connect(
-            host='121.98.68.25', 
+            host='121.98.68.25',
             port=1706,
-            user='appuser',
+            user='magsuser',
             passwd='o6Rf@K*#5%sLDt',
             db='MagsHealthApp')
         self.sqlCur = self.DBconn.cursor()
@@ -68,12 +70,15 @@ class App(ttk.Frame):  # App class TKinter
     def login(self, email, password):
         # SQL - get hashed password for email from DB
         self.sqlCur.execute(
-            "SELECT `pswdHash`,name FROM login WHERE `email`=%s", (email.lower()))
+            "SELECT `pswd`,name FROM logininfo WHERE `email`=%s",
+            (email.lower()))
         self.sqlpswdresult = self.sqlCur.fetchone()
         # Check if email exists
         if self.sqlpswdresult is not None:
-            # Password checking --- convert hashed DB pswd and user input pswd to bytes
-            if bcrypt.checkpw(bytes(password, 'utf-8'), bytes(self.sqlpswdresult[0], 'utf-8')):
+            # Password checking
+            # convert hashed DB pswd and user input pswd to bytes
+            if bcrypt.checkpw(bytes(password, 'utf-8'),
+                              bytes(self.sqlpswdresult[0], 'utf-8')):
                 # Save name and email locally as class variables
                 self.email = email.lower()
                 self.name = self.sqlpswdresult[1]
@@ -84,42 +89,44 @@ class App(ttk.Frame):  # App class TKinter
                 showwarning(
                     title="Error", message="Incorrect password")
         else:  # If sql email lookup returns nothing
-            showerror(title="Invalid username",
-                      message="User does not exist (Wrong email)")
+            showerror(
+                title="Invalid username",
+                message="User does not exist (Wrong email)")
 
     # Signup func to create new user in db
     def signup(self, name, tempemail, password, confirmPassword):
         # Check if any inputs empty
-        if name != '' and tempemail != '' and password != '' and confirmPassword != '':
-            try:
-                # Check if email is valid
-                email = email_validator.validate_email(tempemail.lower()).email
-                # Check if password and confirm password match
-                if password == confirmPassword:
-                    # Hash the password
-                    self.pswdHashed = bcrypt.hashpw(
-                        bytes(password.strip(), 'utf-8'), bcrypt.gensalt())
-                    # Insert name, email, hashed password into DB as new user
-                    self.sqlCur.execute("""
-                    insert into login (name, email, pswdHash) values (%s, %s, %s)""",
-                                        (name, email, self.pswdHashed))
-                    # Due to sql being a insert command commit is needed
-                    self.DBconn.commit()
-                    print("Successfully signed up")
-                    self.changePage(0)
-            except BaseException as e:
-                print(e)
-                showwarning(title="Invalid Email", message=e)
-        else:  # If any inputs are empty
-            showerror(
-                title="Error", message="No fields can be left blank")
+        for i in [name, tempemail, password, confirmPassword]:
+            if i == '':
+                showerror(
+                    title="Error", message="No fields can be left blank")
+                return
+        try:
+            # Check if email is valid
+            email = email_validator.validate_email(tempemail.lower()).email
+            # Check if password and confirm password match
+            if password == confirmPassword:
+                # Hash the password
+                self.pswdHashed = bcrypt.hashpw(
+                    bytes(password.strip(), 'utf-8'), bcrypt.gensalt())
+                # Insert name, email, hashed password into DB as new user
+                self.sqlCur.execute("""
+                insert into logininfo (name, email, pswd) values (%s, %s, %s)
+                """, (name, email, self.pswdHashed))
+                # Due to sql being a insert command commit is needed
+                self.DBconn.commit()
+                print("Successfully signed up")
+                self.changePage(0)
+        except BaseException as e:
+            print(e)
+            showwarning(title="Invalid Email", message=e)
 
     # Graph func will create ./img/graph.png to show on homepage
     def graphInit(self):
-        # Sql cmd to get 15 most recent data values for the current user from DB
+        # Sql cmd to get 15 most recent data values for the current user DB
         self.sqlCur.execute("""
             select time,weight
-            from dataTable
+            from data
             where `email`=%s
             order by id desc
             limit 15;""",
@@ -136,10 +143,12 @@ class App(ttk.Frame):  # App class TKinter
         self.lowestWeight = 999999
         self.highestWeight = 0
         for x in self.values:  # Go through the weight values
-            # If x value lower than the lowest found so far, update new lowest value
+            # If x value lower than the lowest found so far
+            # update new lowest value
             if x <= self.lowestWeight:
                 self.lowestWeight = x
-            # If x value higher than the highest found so far, update new highest value
+            # If x value higher than the highest found so far
+            # update new highest value
             if x >= self.highestWeight:
                 self.highestWeight = x
         if dodarkmode:  # If darkmode then
@@ -190,20 +199,21 @@ class App(ttk.Frame):  # App class TKinter
             # Get current date in format Year month date
             self.todayStrtemp = f"{datetime.datetime.now():%Y-%m-%d}"
             # Input correct values into the sql cmd
-            # Sql cmd will insert new data values for current date if it doesnt exist
+            # Sql cmd will insert new data values
+            # for current date if it doesnt exist
             self.sqlcmd = """
-                INSERT INTO dataTable (email, weight, time)
+                INSERT INTO data (email, weight, time)
                 SELECT '{0}',{1},'{2}' FROM DUAL
-                WHERE NOT EXISTS (SELECT * FROM dataTable WHERE email='{0}' and time='{2}');
+                WHERE NOT EXISTS
+                (SELECT * FROM data WHERE email='{0}' and time='{2}');
             """.format(self.email, str(self.weightTemp), self.todayStrtemp)
             # Perform insert sql cmd
             self.sqlCur.execute(self.sqlcmd)
             time.sleep(0.05)
             # Input correct values into the sql cmd
-            # After the first insert sql cmd is skiped/executed an update cmd will run
-            # This is to update the value of that day if after the first insert is skipped
+            # After the first insert sql cmd is skiped/executed an update
             self.sqlcmd = """
-                UPDATE dataTable SET weight = {1} WHERE email = '{0}' and time = '{2}';
+            UPDATE data SET weight = {1} WHERE email = '{0}' and time = '{2}';
             """.format(self.email, str(self.weightTemp), self.todayStrtemp)
             # Perform update sql cmd
             self.sqlCur.execute(self.sqlcmd)
@@ -214,7 +224,8 @@ class App(ttk.Frame):  # App class TKinter
             self.changePage(2)
         except ValueError:  # Catch error if float conversion is not possible
             showerror(
-                title="Invalid value", message="Invalid weight (whole positive value or decimal only)")
+                title="Invalid value",
+                message="Invalid weight (whole positive or decimal value)")
 
     # Food func to add an entry to DB for calorie counting
     def foodForm(self, query):
@@ -225,25 +236,29 @@ class App(ttk.Frame):  # App class TKinter
             self.tempData = self.foodapi.makequery(query)
             # Set the button text to `confirm` to ask user if food is correct
             self.btnStr.set("Confirm?")
-            # Set a label's text so the amount of food and food name so ensure user food is correct
+            # Set a label's text so the amount of food and food name
+            # so ensure user food is correct
             self.confLblStr.set(
-                "Are you sure you want: {}g {}?".format(self.tempData["serving_size_g"], self.tempData["name"]))
-            # If what the user wrote on prev btn press is same as current btn press
+                "Are you sure you want: {}g {}?".format(
+                    self.tempData["serving_size_g"],
+                    self.tempData["name"]))
+            # Confirm check
             if self.prevEntry == self.tempData["name"]:
                 # Add all food nutrition we want into the database
                 self.sqlCur.execute("""
-                insert into foodData (email, food, calories, servingsize, protein) values (%s, %s, %s, %s, %s)""",
-                                    (self.email,
-                                     self.tempData['name'],
-                                     self.tempData['calories'],
-                                     self.tempData['serving_size_g'],
-                                     self.tempData['protein_g']))
+                insert into food (email, food, calories, servingsize, protein)
+                values (%s, %s, %s, %s, %s)""", (
+                    self.email,
+                    self.tempData['name'],
+                    self.tempData['calories'],
+                    self.tempData['serving_size_g'],
+                    self.tempData['protein_g']))
                 # Commit the DB changes
                 self.DBconn.commit()
                 time.sleep(0.05)
                 # After the entry is in the DB go back to homepage
                 self.changePage(2)
-            # After if statment set the var prevEntry to what the user wrote(for next btn press)
+            # After if statment set the var prevEntry to what the user wrote
             self.prevEntry = self.tempData["name"]
         except ValueError:
             # If what the user wrote isnt a food show error box
@@ -255,31 +270,34 @@ class App(ttk.Frame):  # App class TKinter
         # Sql cmd to get most recent data values for the current user from DB
         self.sqlCur.execute("""
             select food,calories,protein,servingsize
-            from foodData
+            from food
             where `email`=%s
             order by id desc
             limit 30;""",
                             (self.email))
         # Get all results
         foodresult = self.sqlCur.fetchall()
-        return foodresult # and return them 
+        return foodresult  # and return them
 
     # Func to get a random qoute for user
     def qouteoftheday(self):
         # Create a random seed based on the date and
-        # the first and last letters of user's name. 
-        self.currentdate = str(datetime.datetime.now())[:10] # date only (no time)
+        # the first and last letters of user's name.
+        self.currentdate = str(datetime.datetime.now())[
+            :10]  # date only (no time)
         self.currentdate = self.currentdate + self.name[0] + self.name[-1]
-        print(self.currentdate, "is the seed") # print seed
-        random.seed(self.currentdate) # Set random lib seed to users seed
+        print(self.currentdate, "is the seed")  # print seed
+        random.seed(self.currentdate)  # Set random lib seed to users seed
         # Using requests, get a random quote from the github repo json file
-        self.quoteRepo = requests.get('https://raw.githubusercontent.com/dwyl/quotes/main/quotes.json').json()
-        self.randomQuoteIndex = random.randint(0,len(self.quoteRepo))
-        return self.quoteRepo[self.randomQuoteIndex]['text'] # return just text
-# ? OUTSIDE CLASS
+        self.quoteRepo = requests.get(self.quotesgiturl).json()
+        self.randomQuoteIndex = random.randint(0, len(self.quoteRepo))
+        # return just text
+        return self.quoteRepo[self.randomQuoteIndex]['text']
+# OUTSIDE CLASS
 # -----------------------------------------------------
 
-def toggleTheme(reloadNmbr):  # toggle theme to switch themes, and reload page is needed
+
+def toggleTheme(reloadNmbr):  # toggle theme to switch themes, and reload page
     global dodarkmode, app  # Access global dodarkmode bool and app instance
     if dodarkmode:  # If dark mode is enabled
         root.tk.call("set_theme", "light")  # make it light mode
@@ -296,14 +314,16 @@ def toggleTheme(reloadNmbr):  # toggle theme to switch themes, and reload page i
         themetogg.config(image=darkon, activebackground='gray')
         app.changePage(reloadNmbr)  # Reload page so new styles apply
 
+
 def loadstyles():  # Func to load styles after theme change
     global appstyles  # access the global styles
     appstyles.configure('small.TButton', font=(None, 7))  # small button
     appstyles.configure('big.TButton', font=(None, 18))  # big button
 
+
 dodarkmode = True  # Bool for darkmode
 
-if __name__ == "__main__":  # If this file is run directly, run the following code
+if __name__ == "__main__":  # If this file is run directly, run the code
     try:  # Run the following code
         root = tk.Tk()  # Create a window
         root.title("Khap")  # Add title
@@ -319,9 +339,10 @@ if __name__ == "__main__":  # If this file is run directly, run the following co
         # Image for light mode switch
         lighton = tk.PhotoImage(file="./img/themelight.png")
         # Create button with dark mode deflaut
-        themetogg = tk.Button(bd=0, image=darkon,
-                              command=lambda: toggleTheme(app.currentPage),
-                              highlightthickness=0, relief="flat", borderwidth=0)
+        themetogg = tk.Button(
+            bd=0, image=darkon,
+            command=lambda: toggleTheme(app.currentPage),
+            highlightthickness=0, relief="flat", borderwidth=0)
         # Place on very top left on window
         themetogg.place(x=-1, y=-1, width=32, height=16, anchor='nw')
         root.mainloop()  # Run the app

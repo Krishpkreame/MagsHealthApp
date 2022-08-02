@@ -1,0 +1,41 @@
+sql db crate notes 
+
+login table:
+CREATE TABLE MagsHealthApp.logininfo (
+	name varchar(100) NULL,
+	email varchar(100) NULL,
+	pswdHash TEXT NULL
+)
+ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_0900_ai_ci;
+
+
+data table:
+CREATE TABLE MagsHealthApp.`data` (
+	id INT auto_increment NOT NULL,
+	email varchar(100) NULL,
+	weight DECIMAL(10,2) NULL,
+	`time` TIME NULL,
+	PRIMARY KEY (id)
+
+)
+ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_0900_ai_ci;
+
+food table:
+CREATE TABLE MagsHealthApp.`food` (
+	id INT auto_increment NOT NULL,
+	email varchar(100) NULL,
+	food varchar(100) NULL,
+	calories DECIMAL(10,2) NULL,
+	protein DECIMAL(10,2) NULL,
+	servingsize DECIMAL(10,2) NULL,
+	PRIMARY KEY (id)
+
+)
+ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_0900_ai_ci;
+
