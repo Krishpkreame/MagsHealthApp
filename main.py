@@ -55,9 +55,9 @@ class App(ttk.Frame):  # App class TKinter
 
     # Function to get image at certain size
     def getimage(self, name, x, y):
-            self.image = Image.open("./img/" + name + ".png")
-            self.image = self.image.resize((x, y), Image.Resampling.LANCZOS)
-            return ImageTk.PhotoImage(self.image) # return resized image
+        self.image = Image.open("./img/" + name + ".png")
+        self.image = self.image.resize((x, y), Image.Resampling.LANCZOS)
+        return ImageTk.PhotoImage(self.image)  # return resized image
 
     # Func to quit app
     def quitapp(self):

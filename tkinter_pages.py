@@ -14,7 +14,7 @@ Always use grid, not pack or place
 class loginpage():  # login page class
     def create(self):  # Function will create widgets when invoked
         # Get the photo from computer
-        self.photo = self.getimage("logo",239,94)
+        self.photo = self.getimage("logo", 239, 94)
 
         # Make a label using the image we got
         self.image_label = ttk.Label(self, image=self.photo,)
@@ -28,7 +28,7 @@ class loginpage():  # login page class
         self.loginentrys.columnconfigure(index=1, weight=1)
 
         # Email Entry ---
-        self.emalimg = self.getimage("email",36,30)  # Get email icon
+        self.emalimg = self.getimage("email", 36, 30)  # Get email icon
         # Create icon in nested 1st column and email entry in 2nd
         self.emalicon = ttk.Label(self.loginentrys, image=self.emalimg)
         self.emalicon.grid(row=0, column=0, sticky="ne", pady=10)
@@ -36,7 +36,7 @@ class loginpage():  # login page class
         self.email.grid(row=0, column=1, pady=10)
 
         # Password Entry ---
-        self.pswdimg = self.getimage("pswd",36,36)  # Get pswd icon
+        self.pswdimg = self.getimage("pswd", 36, 36)  # Get pswd icon
         # Create icon in nested 1st column and password entry in 2nd but 2nd
         # row
         self.pswdicon = ttk.Label(self.loginentrys, image=self.pswdimg)
@@ -220,7 +220,7 @@ class mainpage():  # main page class
 class weightForm():  # page that lets user enter weight to DB
     def create(self):
         # Create a info label
-        self.weightinfolbl = ttk.Label(self,text="Enter your weight in kgs")
+        self.weightinfolbl = ttk.Label(self, text="Enter your weight in kgs")
         self.weightinfolbl.grid(row=1, column=1, pady=15, padx=10)
         # Create a Frame for login widgets
         self.entries = ttk.Frame(self)  # Frame
@@ -262,7 +262,7 @@ class weightForm():  # page that lets user enter weight to DB
 class foodForm():  # page that lets the user enter food nutr to DB
     def create(self):
         # Create a info label
-        self.foodinfolbl = ttk.Label(self,text="Enter what you ate")
+        self.foodinfolbl = ttk.Label(self, text="Enter what you ate")
         self.foodinfolbl.grid(row=0, column=1, pady=15, padx=10)
         self.prevEntry = ""
         # Create a Frame for login widgets
