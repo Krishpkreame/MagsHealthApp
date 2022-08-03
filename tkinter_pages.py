@@ -1,8 +1,6 @@
 # Import Base Libs
 import tkinter as tk
 from tkinter import ttk
-from PIL import ImageTk, Image
-
 """
 Make a class for every new page you want to create, this is to better organize
 your TK pages. In the class make a function called create which contains
@@ -16,7 +14,7 @@ Always use grid, not pack or place
 class loginpage():  # login page class
     def create(self):  # Function will create widgets when invoked
         # Get the photo from computer
-        self.photo = tk.PhotoImage(file='./img/logo.png')
+        self.photo = self.getimage("logo",239,94)
 
         # Make a label using the image we got
         self.image_label = ttk.Label(self, image=self.photo,)
@@ -30,7 +28,7 @@ class loginpage():  # login page class
         self.loginentrys.columnconfigure(index=1, weight=1)
 
         # Email Entry ---
-        self.emalimg = tk.PhotoImage(file='./img/email.png')  # Get email icon
+        self.emalimg = self.getimage("email",36,30)  # Get email icon
         # Create icon in nested 1st column and email entry in 2nd
         self.emalicon = ttk.Label(self.loginentrys, image=self.emalimg)
         self.emalicon.grid(row=0, column=0, sticky="ne", pady=10)
@@ -38,7 +36,7 @@ class loginpage():  # login page class
         self.email.grid(row=0, column=1, pady=10)
 
         # Password Entry ---
-        self.pswdimg = tk.PhotoImage(file='./img/pswd.png')  # Get pswd icon
+        self.pswdimg = self.getimage("pswd",36,36)  # Get pswd icon
         # Create icon in nested 1st column and password entry in 2nd but 2nd
         # row
         self.pswdicon = ttk.Label(self.loginentrys, image=self.pswdimg)
@@ -81,7 +79,7 @@ class loginpage():  # login page class
 class signpage():  # signup page page class
     def create(self):  # Function will create widgets when invoked
         # Get the photo from computer
-        self.photo = tk.PhotoImage(file='./img/logo.png')
+        self.photo = self.getimage("logo", 36, 36)
 
         # Make a label using the image we got
         self.image_label = ttk.Label(self, image=self.photo)
@@ -95,7 +93,7 @@ class signpage():  # signup page page class
         self.loginentrys.columnconfigure(index=1, weight=1)
 
         # Name Entry ---
-        self.nameimg = tk.PhotoImage(file='./img/user.png')  # Get name icon
+        self.nameimg = self.getimage("user", 36, 36)  # Get name icon
         # Create icon in nested 1st column and name entry in 2nd
         self.nameicon = ttk.Label(self.loginentrys, image=self.nameimg)
         self.nameicon.grid(row=0, column=0, sticky="ne", pady=10)
@@ -103,7 +101,7 @@ class signpage():  # signup page page class
         self.name.grid(row=0, column=1, pady=10)
 
         # Email Entry ---
-        self.emalimg = tk.PhotoImage(file='./img/email.png')  # Get email icon
+        self.emalimg = self.getimage("email", 36, 36)  # Get email icon
         # Create icon in nested 1st column and email entry in 2nd
         self.emalicon = ttk.Label(self.loginentrys, image=self.emalimg)
         self.emalicon.grid(row=1, column=0, sticky="ne", pady=10)
@@ -111,7 +109,7 @@ class signpage():  # signup page page class
         self.email.grid(row=1, column=1, pady=10)
 
         # Password Entry ---
-        self.pswdimg = tk.PhotoImage(file='./img/pswd.png')  # Get pswd icon
+        self.pswdimg = self.getimage("pswd", 36, 36)  # Get pswd icon
         # Create icon in nested 1st column and password entry in 2nd but 2nd
         # row
         self.pswdicon = ttk.Label(self.loginentrys, image=self.pswdimg)
@@ -162,11 +160,7 @@ class mainpage():  # main page class
         # Create graph before creating other widgets
         self.graphInit()
         # Get the photo from computer
-        self.image = Image.open('./img/graph.png')
-        # Resize from 640 × 480 to 480 x 360
-        self.image = self.image.resize((480, 360), Image.ANTIALIAS)
-        # Convert resized img to PhotoImage
-        self.photo = ImageTk.PhotoImage(self.image)
+        self.photo = self.getimage("graph", 480, 360)
         # Make a label using the image we got
         self.image_label = ttk.Label(self, image=self.photo,)
         self.image_label.grid(row=2, column=1)  # Place 1st row
@@ -225,13 +219,16 @@ class mainpage():  # main page class
 
 class weightForm():  # page that lets user enter weight to DB
     def create(self):
+        # Create a info label
+        self.weightinfolbl = ttk.Label(self,text="Enter your weight in kgs")
+        self.weightinfolbl.grid(row=1, column=1, pady=15, padx=10)
         # Create a Frame for login widgets
         self.entries = ttk.Frame(self)  # Frame
         self.entries.grid(
             row=2,
             column=1,
             padx=10,
-            pady=20,
+            pady=5,
             sticky="nsew",
             rowspan=2)
         # Setup columns
@@ -239,7 +236,7 @@ class weightForm():  # page that lets user enter weight to DB
         self.entries.columnconfigure(index=1, weight=1)
 
         # Weight Entry ---
-        self.weightimg = tk.PhotoImage(file='./img/weight.png')  # pswd icon
+        self.weightimg = self.getimage("weight", 36, 36)  # pswd icon
         self.weighticon = ttk.Label(self.entries, image=self.weightimg)
         self.weighticon.grid(row=3, column=0, sticky="ne", pady=20, padx=10)
         self.weight = ttk.Entry(self.entries)
@@ -264,17 +261,20 @@ class weightForm():  # page that lets user enter weight to DB
 
 class foodForm():  # page that lets the user enter food nutr to DB
     def create(self):
+        # Create a info label
+        self.foodinfolbl = ttk.Label(self,text="Enter what you ate")
+        self.foodinfolbl.grid(row=0, column=1, pady=15, padx=10)
         self.prevEntry = ""
         # Create a Frame for login widgets
         self.entries = ttk.Frame(self)  # Frame
         self.entries.grid(row=1, column=1, sticky="nsew",
-                          rowspan=2, padx=10, pady=20)
+                          rowspan=2, padx=10, pady=5)
         # Setup columns
         self.entries.columnconfigure(index=0, weight=1)
         self.entries.columnconfigure(index=1, weight=1)
 
         # Food Entry ---
-        self.foodimg = tk.PhotoImage(file='./img/food.png')  # pswd icon
+        self.foodimg = self.getimage("food", 32, 32)  # pswd icon
         self.foodicon = ttk.Label(self.entries, image=self.foodimg)
         self.foodicon.grid(row=2, column=0, sticky="ne", pady=20, padx=10)
         self.food = ttk.Entry(self.entries)

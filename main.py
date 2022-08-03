@@ -3,6 +3,7 @@ import datetime
 import time
 # Tkinter libs
 import tkinter as tk
+from PIL import Image, ImageTk  # putting images into app
 from tkinter.messagebox import *
 from tkinter import ttk
 import tkinter_pages  # - custom
@@ -51,6 +52,12 @@ class App(ttk.Frame):  # App class TKinter
             self.columnconfigure(index=i, weight=1)
         # Show first page on list at start up
         self.changePage(0)
+
+    # Function to get image at certain size
+    def getimage(self, name, x, y):
+            self.image = Image.open("./img/" + name + ".png")
+            self.image = self.image.resize((x, y), Image.Resampling.LANCZOS)
+            return ImageTk.PhotoImage(self.image) # return resized image
 
     # Func to quit app
     def quitapp(self):
@@ -179,7 +186,12 @@ class App(ttk.Frame):  # App class TKinter
             # Adjust the graph y limits so that minimal blank shape, light mode
             plt.ylim(self.lowestWeight-10, self.highestWeight+10)
             ax = plt.subplot(111)  # Line graph, light mode
-            ax.plot(self.times, self.values)  # plot the values, light mode
+            ax.plot(self.times, self.values, 'o-')
+            # Add horizontal grid lines, darkmode
+            ax.yaxis.grid(linestyle="--", linewidth=0.3)
+            # Change all outlines of graph to color , darkmode
+            for i in ['top', 'bottom', 'left', 'right']:
+                ax.spines[i].set_color('#736e6c')
             # Only use day on x axis (not year or month), light mode
             ax.xaxis.set_major_formatter(
                 mdates.DateFormatter('%b-%d'))
@@ -335,9 +347,9 @@ if __name__ == "__main__":  # If this file is run directly, run the code
         app.pack(fill="both", expand=True)  # Fill window
         # Dark mode switch -----------------------
         # Image for dark mode switch
-        darkon = tk.PhotoImage(file="./img/themedark.png")
+        darkon = app.getimage("themedark", 32, 16)
         # Image for light mode switch
-        lighton = tk.PhotoImage(file="./img/themelight.png")
+        lighton = app.getimage("themelight", 32, 16)
         # Create button with dark mode deflaut
         themetogg = tk.Button(
             bd=0, image=darkon,
