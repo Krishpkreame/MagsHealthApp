@@ -206,7 +206,7 @@ class App(ttk.Frame):  # App class TKinter
             self.weightTemp = float(weight.strip())
             if self.weightTemp <= 0:  # If weight is negative or zero
                 raise ValueError("Weight must be positive")
-            elif self.weightTemp > 150:
+            elif self.weightTemp > 350:
                 raise ValueError("Unrealistic weight")
             # Get current date in format Year month date
             self.todayStrtemp = f"{datetime.datetime.now():%Y-%m-%d}"
