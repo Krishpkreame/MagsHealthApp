@@ -4,18 +4,17 @@ import json  # Parse json response to py dict
 
 class nutritionInfo:  # Api class
     def __init__(self):  # initialize
-        # Api key for api-ninja
-        self.__apikey = "C6e95NIQxZze2dwtANO0+A==C8xURwL7essFClbv"
+        pass
 
     def makequery(self, foodQuery):  # func to make food query
         # incase food not found
         try:
             # url to get requests from
-            self.api_url = """https://api.api-ninjas.com/v1/nutrition?query={}
-            """.format(foodQuery)  # add what food to find at end
+            self.api_url = "https://api.api-ninjas.com/v1/nutrition?query="
             # Get the data from the api using
             self.response = requests.get(
-                self.api_url, headers={'X-Api-Key': self.__apikey})
+                self.api_url + str(foodQuery), headers={
+                    'X-Api-Key': 'C6e95NIQxZze2dwtANO0+A==C8xURwL7essFClbv'})
             # If request was ok
             if self.response.status_code == requests.codes.ok:
                 # Parse json data into dictionary
