@@ -4,7 +4,7 @@ login table:
 CREATE TABLE MagsHealthApp.logininfo (
 	name varchar(100) NULL,
 	email varchar(100) NULL,
-	pswdHash TEXT NULL
+	pswd TEXT NULL
 )
 ENGINE=InnoDB
 DEFAULT CHARSET=utf8mb4
@@ -16,7 +16,7 @@ CREATE TABLE MagsHealthApp.`data` (
 	id INT auto_increment NOT NULL,
 	email varchar(100) NULL,
 	weight DECIMAL(10,2) NULL,
-	`time` TIME NULL,
+	`time` DATE NULL,
 	PRIMARY KEY (id)
 
 )
