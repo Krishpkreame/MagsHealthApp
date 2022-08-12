@@ -29,7 +29,7 @@ class App(ttk.Frame):  # App class TKinter
         # SQL DATABASE ----------------------------------
         # Setup sql connection
         self.DBconn = pymysql.connect(
-            host='121.98.68.25',
+            host="121.98.68.25",
             port=1706,
             user='magsuser',
             passwd='o6Rf@K*#5%sLDt',

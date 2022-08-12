@@ -79,7 +79,7 @@ class loginpage():  # login page class
 class signpage():  # signup page page class
     def create(self):  # Function will create widgets when invoked
         # Get the photo from computer
-        self.photo = self.getimage("logo", 36, 36)
+        self.photo = self.getimage("logo", 239, 94)
 
         # Make a label using the image we got
         self.image_label = ttk.Label(self, image=self.photo)
